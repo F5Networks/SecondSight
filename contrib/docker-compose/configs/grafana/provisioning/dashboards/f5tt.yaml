@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: 'F5 Telemetry Tracker'
+    folder: 'F5 Telemetry Tracker'
+    type: file
+    disableDeletion: true
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/dashboards
+      foldersFromFilesStructure: false

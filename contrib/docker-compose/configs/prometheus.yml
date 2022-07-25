@@ -1,0 +1,12 @@
+global:
+  scrape_interval: 15s
+  scrape_timeout: 8s
+rule_files:
+scrape_configs:
+  - job_name: 'f5tt'
+    scrape_interval: 120s
+    scrape_timeout: 120s
+    static_configs:
+    - targets:
+      - f5tt-bigiq:5000
+      - f5tt-nim:5000

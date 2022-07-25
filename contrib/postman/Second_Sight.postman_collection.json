@@ -1,0 +1,255 @@
+{
+	"info": {
+		"_postman_id": "2af7beac-8a0b-4d99-9371-403c0610b7ea",
+		"name": "Second Sight",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "NGINX Instance Manager 2",
+			"item": [
+				{
+					"name": "Full JSON",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{f5tt_host}}:{{f5tt_port}}/instances",
+							"protocol": "http",
+							"host": [
+								"{{f5tt_host}}"
+							],
+							"port": "{{f5tt_port}}",
+							"path": [
+								"instances"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CVE JSON",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{f5tt_host}}:{{f5tt_port}}/instances?type=CVE",
+							"protocol": "http",
+							"host": [
+								"{{f5tt_host}}"
+							],
+							"port": "{{f5tt_port}}",
+							"path": [
+								"instances"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "CVE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Time-based usage JSON - current month, 4 hours average",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{f5tt_host}}:{{f5tt_port}}/instances?type=timebased&month=0&slot=4",
+							"protocol": "http",
+							"host": [
+								"{{f5tt_host}}"
+							],
+							"port": "{{f5tt_port}}",
+							"path": [
+								"instances"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "timebased"
+								},
+								{
+									"key": "month",
+									"value": "0"
+								},
+								{
+									"key": "slot",
+									"value": "4"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Time-based usage JSON - previous month, 6 hours average",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{f5tt_host}}:{{f5tt_port}}/instances?type=timebased&month=-1&slot=6",
+							"protocol": "http",
+							"host": [
+								"{{f5tt_host}}"
+							],
+							"port": "{{f5tt_port}}",
+							"path": [
+								"instances"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "timebased"
+								},
+								{
+									"key": "month",
+									"value": "-1"
+								},
+								{
+									"key": "slot",
+									"value": "6"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "BIG-IQ",
+			"item": [
+				{
+					"name": "Full JSON",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{f5tt_host}}:{{f5tt_port}}/instances",
+							"protocol": "http",
+							"host": [
+								"{{f5tt_host}}"
+							],
+							"port": "{{f5tt_port}}",
+							"path": [
+								"instances"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CVE JSON summarized by CVE",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{f5tt_host}}:{{f5tt_port}}/instances?type=CVE",
+							"protocol": "http",
+							"host": [
+								"{{f5tt_host}}"
+							],
+							"port": "{{f5tt_port}}",
+							"path": [
+								"instances"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "CVE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CVE JSON summarized by device",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{f5tt_host}}:{{f5tt_port}}/instances?type=CVEbyDevice",
+							"protocol": "http",
+							"host": [
+								"{{f5tt_host}}"
+							],
+							"port": "{{f5tt_port}}",
+							"path": [
+								"instances"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "CVEbyDevice"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Software on Hardware JSON",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{f5tt_host}}:{{f5tt_port}}/instances?type=SwOnHw",
+							"protocol": "http",
+							"host": [
+								"{{f5tt_host}}"
+							],
+							"port": "{{f5tt_port}}",
+							"path": [
+								"instances"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "SwOnHw"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "f5tt_host",
+			"value": "ubuntu.ff.lan",
+			"type": "string"
+		},
+		{
+			"key": "f5tt_port",
+			"value": "5000",
+			"type": "string"
+		}
+	]
+}

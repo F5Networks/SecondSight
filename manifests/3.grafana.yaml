@@ -1,0 +1,175 @@
+apiVersion: v1                                       
+kind: ConfigMap                                      
+metadata:                                            
+  name: grafana-config
+  namespace: f5tt
+data:                                                
+  grafana.ini: |-
+    [paths]
+    [server]
+    domain = grafana.f5tt.ff.lan
+    root_url = https://grafana.f5tt.ff.lan
+    [database]
+    [session]
+    [dataproxy]
+    [analytics]
+    [security]
+    [snapshots]
+    [users]
+    [auth]
+    [auth.anonymous]
+    enabled = true
+    [auth.github]
+    [auth.google]
+    [auth.generic_oauth]
+    #enabled = true
+    #name = Oauth
+    #allow_sign_up = true
+    #client_id = Grafana
+    #client_secret = b496e866-cf3d-430b-8fc5-737c11be7bb7
+    #scopes = openid profile email
+    #auth_url = https://idp-fqdn/auth/realms/master/protocol/openid-connect/auth
+    #token_url = https://idp-fqdn/auth/realms/master/protocol/openid-connect/token
+    #api_url = https://idp-fqdn/auth/realms/master/protocol/openid-connect/userinfo
+    [auth.grafana_com]
+    [auth.proxy]
+    [auth.basic]
+    enabled = false
+    [auth.ldap]
+    [smtp]
+    #enabled = true
+    #host = smtp-server-fqdn:25
+    #user = user@domain
+    #password = thepassword
+    #from_address = grafana@f5tt.ff.lan
+    #from_name = Grafana
+    [emails]
+    [log]
+    mode = console file
+    [log.console]
+    [log.file]
+    [log.syslog]
+    [event_publisher]
+    [dashboards.json]
+    [alerting]
+    [metrics]
+    [metrics.graphite]
+    [grafana_com]
+    [external_image_storage]
+    [external_image_storage.s3]
+    [external_image_storage.webdav]
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-grafana-data
+  namespace: f5tt
+  annotations:
+    nfs.io/storage-path: grafana/data
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-grafana-log
+  namespace: f5tt
+  annotations:
+    nfs.io/storage-path: grafana/log
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: f5tt
+  labels:
+    app: grafana
+spec:
+  selector:
+    matchLabels:
+      app: grafana
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+        - name: grafana-config
+          mountPath: /etc/grafana/grafana.ini
+          subPath: grafana.ini
+        - name: grafana-data
+          mountPath: /var/lib/grafana
+        - name: grafana-log
+          mountPath: /var/log/grafana
+      volumes:
+      - name: grafana-config
+        configMap:
+          name: grafana-config
+      - name: grafana-data
+        persistentVolumeClaim:
+          claimName: pvc-grafana-data
+      - name: grafana-log
+        persistentVolumeClaim:
+          claimName: pvc-grafana-log
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: f5tt
+  labels:
+    app: grafana
+spec:
+  ports:
+  - port: 3000
+  selector:
+    app: grafana
+  type: ClusterIP
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana
+  namespace: f5tt
+  annotations:
+    nginx.org/proxy-connect-timeout: "30s"
+    nginx.org/proxy-read-timeout: "20s"
+    nginx.org/client-max-body-size: "4m"
+    nginx.com/health-checks: "true"
+  labels:
+    app: grafana
+    tier: frontend
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: grafana.f5tt.ff.lan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana
+                port:
+                  number: 3000

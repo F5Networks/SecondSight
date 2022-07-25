@@ -1,0 +1,181 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: f5tt
+  namespace: f5tt
+  labels:
+    app: f5tt
+spec:
+  selector:
+    matchLabels:
+      app: f5tt
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: f5tt
+    spec:
+      containers:
+      - name: f5tt
+        image: fiorucci/f5-telemetry-tracker:latest
+        ports:
+        - containerPort: 5000
+        env:
+          ### Optional listen address and port
+          #- name: F5TT_ADDRESS
+          #  value: 0.0.0.0
+          #- name: F5TT_PORT
+          #  value: 5000
+
+          ### Optional HTTP(S) Proxy
+          #- name: HTTP_PROXY
+          #  value: "http(s)://username:password@proxy_ip:port"
+          #- name: HTTPS_PROXY
+          #  value: "http(s)://username:password@proxy_ip:port"
+
+          ### Optional NIST NVD CVE tracking REST API key (https://nvd.nist.gov/developers/request-an-api-key)
+          #- name: NIST_API_KEY
+          #  value: xxxxxxxxxxxx
+
+          ### REST API mode
+
+          # Example for NGINX Controller
+
+          #- name: DATAPLANE_TYPE
+          #  value: NGINX_CONTROLLER
+          #- name: DATAPLANE_FQDN
+          #  value: "https://nginx-controller.ff.lan:443"
+          #- name: DATAPLANE_USERNAME
+          #  value: "username@domain"
+          #- name: DATAPLANE_PASSWORD
+          #  value: "thepassword"
+
+          # Example for NGINX Instance Manager 1.x
+
+          #- name: DATAPLANE_TYPE
+          #  value: NGINX_INSTANCE_MANAGER
+          #- name: DATAPLANE_FQDN
+          #  value: "http://nim.ff.lan:11000"
+          #- name: DATAPLANE_USERNAME
+          #  value: "username@domain"
+          #- name: DATAPLANE_PASSWORD
+          #  value: "thepassword"
+
+          # Example for NGINX Instance Manager 2.x
+
+          #- name: DATAPLANE_TYPE
+          #  value: NGINX_MANAGEMENT_SYSTEM
+          #- name: DATAPLANE_FQDN
+          #  value: "https://nim.ff.lan"
+          #- name: DATAPLANE_USERNAME
+          #  value: "username@domain"
+          #- name: DATAPLANE_PASSWORD
+          #  value: "thepassword"
+          #- name: NMS_CH_HOST
+          #  value: "nim.ff.lan"
+          #- name: NMS_CH_PORT
+          #  value: "9000"
+          #- name: NMS_CH_USER
+          #  value: "default"
+          #- name: NMS_CH_PASS
+          #  value: ""
+          #- name: NMS_CH_SAMPLE_INTERVAL
+          #  value: "1800"
+
+          # Example for BIG-IQ
+
+          #- name: DATAPLANE_TYPE
+          #  value: BIG_IQ
+          #- name: DATAPLANE_FQDN
+          #  value: "https://bigiq"
+          #- name: DATAPLANE_USERNAME
+          #  value: "admin"
+          #- name: DATAPLANE_PASSWORD
+          #  value: "admin"
+
+          ### Push mode - push interval in seconds
+          #- name: STATS_PUSH_ENABLE
+          #  value: "true"
+          #- name: STATS_PUSH_MODE
+          #  value: PUSHGATEWAY
+          #- name: STATS_PUSH_URL
+          #  value: "http://pushgateway.nginx.ff.lan"
+          #- name: STATS_PUSH_INTERVAL
+          #  value: "10"
+
+          # Optional parameters for Basic Auth
+          #- name: STATS_PUSH_USERNAME
+          #  value: "authusername"
+          #- name: STATS_PUSH_PASSWORD
+          #  value: "authpassword"
+
+          ### Automated e-mail reporting
+            # EMAIL_ENABLED is mandatory
+          #- name: EMAIL_ENABLED
+          #  value: "false"
+          #- name: EMAIL_INTERVAL
+            # EMAIL_INTERVAL specified in days
+          #  value: "5"
+
+          #- name: EMAIL_SERVER
+          #  value: "smtp.mydomain.tld"
+          #- name: EMAIL_SERVER_PORT
+          #  value: "25"
+          #- name: EMAIL_SERVER_TYPE
+            # Value can be starttls, ssl, plaintext
+          #  value: "starttls"
+
+            # Optional username/password for SMTP authentication
+          #- name: EMAIL_AUTH_USER
+          #  value: "username@domain.tld"
+          #- name: EMAIL_AUTH_PASS
+          #  value: "thepassword"
+
+            # Reporting email sender and recipient
+          #- name: EMAIL_SENDER
+          #  value: "sender@domain.tld"
+          #- name: EMAIL_RECIPIENT
+          #  value: "recipient@domain.tld"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: f5tt
+  namespace: f5tt
+  labels:
+    app: f5tt
+spec:
+  ports:
+  - name: http
+    port: 5000
+  selector:
+    app: f5tt
+  type: ClusterIP
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: f5tt
+  namespace: f5tt
+  annotations:
+    nginx.org/proxy-connect-timeout: "30s"
+    nginx.org/proxy-read-timeout: "20s"
+    nginx.org/client-max-body-size: "4m"
+    nginx.com/health-checks: "true"
+  labels:
+    app: f5tt
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: f5tt.ff.lan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: f5tt
+                port:
+                  number: 5000

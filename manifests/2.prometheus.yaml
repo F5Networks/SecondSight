@@ -1,0 +1,136 @@
+apiVersion: v1                                       
+kind: ConfigMap                                      
+metadata:                                            
+  name: prometheus-config
+  namespace: f5tt
+data:                                                
+  prometheus.yml: |-
+    # my global config
+    global:
+      scrape_interval: 15s
+      scrape_timeout: 8s
+    rule_files:
+    scrape_configs:
+      # Configuration for pull mode
+      #- job_name: 'f5tt'
+      #  scrape_interval: 10s
+      #  scrape_timeout: 8s
+      #  static_configs:
+      #  - targets:
+      #    - f5tt.ff.lan
+
+      # Configuration for push mode
+      #- job_name: 'pushgateway'
+      #  scrape_interval: 120s
+      #  scrape_timeout: 120s
+      #  static_configs:
+      #  - targets:
+      #    - pushgateway.f5tt.ff.lan
+
+      # Configuration for push and pull mode
+      - job_name: 'pushgateway'
+        scrape_interval: 120s
+        scrape_timeout: 120s
+        static_configs:
+        - targets:
+          - pushgateway.f5tt.ff.lan
+          - f5tt.ff.lan
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-prometheus
+  namespace: f5tt
+  annotations:
+    nfs.io/storage-path: prometheus
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 150Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: f5tt
+  labels:
+    app: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: prometheus
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+      - name: prometheus
+        image: prom/prometheus
+        ports:
+        - containerPort: 9090
+        volumeMounts:
+        - name: prometheus-config
+          mountPath: /etc/prometheus/prometheus.yml
+          subPath: prometheus.yml
+        - name: prometheus-data
+          mountPath: /prometheus
+        args:
+          - "--storage.tsdb.retention.time=730d"
+          - "--config.file=/etc/prometheus/prometheus.yml"
+          - "--web.enable-admin-api"
+      volumes:
+      - name: prometheus-config
+        configMap:
+          name: prometheus-config
+      - name: prometheus-data
+        persistentVolumeClaim:
+          claimName: pvc-prometheus
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: f5tt
+  labels:
+    app: prometheus
+spec:
+  ports:
+  - port: 9090
+  selector:
+    app: prometheus
+  type: ClusterIP
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prometheus
+  namespace: f5tt
+  annotations:
+    nginx.org/proxy-connect-timeout: "30s"
+    nginx.org/proxy-read-timeout: "20s"
+    nginx.org/client-max-body-size: "4m"
+    nginx.com/health-checks: "true"
+  labels:
+    app: prometheus
+    tier: frontend
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: prometheus.f5tt.ff.lan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: prometheus
+                port:
+                  number: 9090

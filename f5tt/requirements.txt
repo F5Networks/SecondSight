@@ -1,0 +1,5 @@
+fastapi
+uvicorn
+requests
+json2html
+clickhouse-driver
