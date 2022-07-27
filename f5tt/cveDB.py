@@ -126,20 +126,21 @@ def getNGINX(version="*"):
   matchingCVE={}
 
   if version != '':
-    for cve in allCVE['result']['CVE_Items']:
-      allCPEMatches=cve['configurations']['nodes'][0]['cpe_match']
+    if 'result' in allCVE:
+      for cve in allCVE['result']['CVE_Items']:
+        allCPEMatches=cve['configurations']['nodes'][0]['cpe_match']
 
-      for cpeMatch in allCPEMatches:
-        # Found CVE match
-        cveId=cve['cve']['CVE_data_meta']['ID']
-        cveUrl=cve['cve']['references']['reference_data'][0]['url']
-        cveDesc=cve['cve']['description']['description_data'][0]['value']
-        cveBaseSeverity=cve['impact']['baseMetricV3']['cvssV3']['baseSeverity'] if 'baseMetricV3' in cve['impact'] else ''
-        cveBaseScore=cve['impact']['baseMetricV3']['cvssV3']['baseScore'] if 'baseMetricV3' in cve['impact'] else ''
-        cveExplScore=cve['impact']['baseMetricV2']['exploitabilityScore'] if 'baseMetricV2' in cve['impact'] else ''
+        for cpeMatch in allCPEMatches:
+          # Found CVE match
+          cveId=cve['cve']['CVE_data_meta']['ID']
+          cveUrl=cve['cve']['references']['reference_data'][0]['url']
+          cveDesc=cve['cve']['description']['description_data'][0]['value']
+          cveBaseSeverity=cve['impact']['baseMetricV3']['cvssV3']['baseSeverity'] if 'baseMetricV3' in cve['impact'] else ''
+          cveBaseScore=cve['impact']['baseMetricV3']['cvssV3']['baseScore'] if 'baseMetricV3' in cve['impact'] else ''
+          cveExplScore=cve['impact']['baseMetricV2']['exploitabilityScore'] if 'baseMetricV2' in cve['impact'] else ''
 
-        if cveId not in matchingCVE:
-          matchingCVE[cveId]={"id":cveId,"url":cveUrl,"description":cveDesc,"baseSeverity":cveBaseSeverity,"baseScore":cveBaseScore,"exploitabilityScore":cveExplScore}
+          if cveId not in matchingCVE:
+            matchingCVE[cveId]={"id":cveId,"url":cveUrl,"description":cveDesc,"baseSeverity":cveBaseSeverity,"baseScore":cveBaseScore,"exploitabilityScore":cveExplScore}
 
     cveF5 = getF5(product="nginx",version=version)
 
