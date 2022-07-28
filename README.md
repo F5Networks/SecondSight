@@ -127,9 +127,15 @@ sequenceDiagram
 ## Prerequisites
 
 - Kubernetes/Openshift cluster or Linux host with Docker support
-- Private registry to push the Second Sight image
+- Private registry to push the Second Sight image if running on Kubernetes/Openshift
 - One of:
   - NGINX Instance Manager 2.1.0+
+    - Note: NGINX Instance Manager enforces rate limiting on `/api` by default. This needs to be disabled for Second Sight to operate correctly. To do this edit `/etc/nginx/conf.d/nms-http.conf` on NGINX Instance Manager and comment out the following lines in the `location /api` context:
+	```
+		limit_req zone=nms-ratelimit burst=10 nodelay;
+		limit_req_status 429;
+	```
+	Then reload NGINX configuration using `nginx -s reload`
   - BIG-IQ 8.1.0, 8.1.0.2, 8.2.0
 - SMTP server if automated email reporting is used
 - NIST NVD REST API Key for full CVE tracking (https://nvd.nist.gov/developers/request-an-api-key)
