@@ -364,9 +364,10 @@ def bigIqInventory(mode):
 
   timeNow = datetime.datetime.now()
   monthAgo = timeNow - datetime.timedelta(days=30)
+  monthAgoEnd = timeNow.replace(day=1,hour=0,minute=0,second=0) - datetime.timedelta(seconds=1)
 
-  output['periodStarted'] = monthAgo.strftime("%Y-%m-%dT%H:%M:%SZ")
-  output['periodEnded'] = timeNow.strftime("%Y-%m-%dT%H:%M:%SZ")
+  output['periodStarted'] = monthAgo.replace(day=1,hour=0,minute=0,second=0).strftime("%Y-%m-%dT%H:%M:%SZ")
+  output['periodEnded'] = monthAgoEnd.strftime("%Y-%m-%dT%H:%M:%SZ")
 
   output['instances'] = []
   output['instances'].append(instancesDict)

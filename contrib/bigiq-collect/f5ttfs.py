@@ -27,8 +27,10 @@ def unTarGz(file):
   tgzfile.extractall(jsonDir)
   tgzfile.close()
 
-  print(f"Removing {file}")
-  os.remove(file)
+  # Removes tgz filename only if POSTed, no removal if passed through the commandline
+  if len(sys.argv) == 1:
+    print(f"Removing {file}")
+    os.remove(file)
 
   for c, tmpDir in enumerate(os.listdir(jsonDir+"/tmp/")):
     tgzDir = jsonDir+"/tmp/"+tmpDir
