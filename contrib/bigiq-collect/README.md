@@ -7,6 +7,14 @@ the .tgz file can then be processed offline by Second Sight to build all target 
 
 `sampledata.tgz` is provided for testing purposes
 
+## Building the docker image
+
+The docker image can currently be used in REST API-based data postprocessing mode only, and can be built using:
+
+```
+$ docker build --no-cache -t bigiq-collector:latest .
+```
+
 ## Usage - Data collection
 
 - Copy (scp) `bigIQCollect.sh` from your local host to your BIG-IQ CM instance, under `/tmp/`
