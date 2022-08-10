@@ -4,7 +4,7 @@ Second Sight GUI is currently in beta release and not all features are complete/
 
 # How to deploy
 
-The GUI can be deployed using docker compose on a Linux virtual machine running Docker:
+The GUI can be deployed using docker compose 1.29+ on a Linux virtual machine running Docker:
 
 ```
 $ ./secondsight-gui.sh 

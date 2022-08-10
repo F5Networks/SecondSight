@@ -3,6 +3,9 @@
 ## Description and features
 
 Second Sight is a comprehensive tool that helps tracking NGINX OSS and NGINX Plus instances managed by NGINX Instance Manager/NGINX Management Suite and TMOS (BIG-IP, VIPRION, BIG-IP Virtual Edition) instances managed by BIG-IQ.
+
+The [web GUI](/contrib/GUI) provides visibility and insights on collected data.
+
 Raw data is collected from NGINX Instance Manager/NGINX Management Suite and BIG-IQ, aggregated and several JSON reports and visualizations are made available focusing on:
 
 - Software usage
@@ -10,6 +13,7 @@ Raw data is collected from NGINX Instance Manager/NGINX Management Suite and BIG
 - Operating system and software releases
 - Realtime CVE tracking
 - Telemetry data (CPU, RAM, disk, network throughput, ...)
+- Analytics and drill-down
 
 Second Sight has been tested against:
 
