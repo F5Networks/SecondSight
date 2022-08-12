@@ -32,13 +32,6 @@ services:
       postgres:
         condition: service_healthy
 
-  bigiq-collector:
-    image: fiorucci/bigiq-collector:latest
-    container_name: "bigiq-collector"
-    restart: always
-    ports:
-      - "5001:5001"
-
   f5tt:
     image: fiorucci/f5-telemetry-tracker:latest
     container_name: "f5tt"
@@ -47,13 +40,11 @@ services:
       - "5000:5000"
     environment:
       - DATAPLANE_TYPE=BIG_IQ
-      - DATAPLANE_FQDN=http://bigiq-collector:5001
+      - DATAPLANE_FQDN=http://127.0.0.1:5001
       - DATAPLANE_USERNAME="notused"
       - DATAPLANE_PASSWORD="notused"
       ### Optional NIST API Key for CVE tracking (https://nvd.nist.gov/developers/request-an-api-key)
       #- NIST_API_KEY=xxxxxxx
-    depends_on:
-      - bigiq-collector
 
   secondsight-gui:
     image: fiorucci/secondsight-gui:latest

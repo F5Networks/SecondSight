@@ -110,9 +110,9 @@ def getF5(product="*",version="*"):
               cveId=cve['cve']['CVE_data_meta']['ID']
               cveUrl=cve['cve']['references']['reference_data'][0]['url']
               cveDesc=cve['cve']['description']['description_data'][0]['value']
-              cveBaseSeverity=cve['impact']['baseMetricV3']['cvssV3']['baseSeverity']
-              cveBaseScore=cve['impact']['baseMetricV3']['cvssV3']['baseScore']
-              cveExplScore=cve['impact']['baseMetricV2']['exploitabilityScore']
+              cveBaseSeverity=cve['impact']['baseMetricV3']['cvssV3']['baseSeverity'] if 'baseMetricV3' in cve['impact'] else ''
+              cveBaseScore=cve['impact']['baseMetricV3']['cvssV3']['baseScore'] if 'baseMetricV3' in cve['impact'] else ''
+              cveExplScore=cve['impact']['baseMetricV2']['exploitabilityScore'] if 'baseMetricV2' in cve['impact'] else ''
 
               if cveId not in matchingCVE:
                 matchingCVE[cveId]={"id":cveId,"url":cveUrl,"description":cveDesc,"baseSeverity":cveBaseSeverity,"baseScore":cveBaseScore,"exploitabilityScore":cveExplScore}

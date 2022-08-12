@@ -1,5 +1,6 @@
 fastapi
 uvicorn
 requests
-json2html
+requests_cache
 clickhouse-driver
+flask

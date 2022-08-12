@@ -9,7 +9,6 @@ Main endpoints are:
 - `/metrics` or `/f5tt/metrics`
 
 For `/instances` and `/f5tt/instances` endpoints if the request includes the `Accept-Encoding: gzip` header the response will be compressed
-The `/` endpoint displays a basic HTML view of generated JSON files
 
 A sample Postman collection is [available here](/contrib/postman)
 
@@ -21,8 +20,6 @@ the `type` query string parameter can be used to retrieve a logical view of the 
 
 | Output type | URI | Description |
 |---|:---|:---|
-| HTML | / | Full data visualization |
-| HTML | /?type=CVE | CVE data visualization |
 | JSON | /instances | NGINX instances inventory and CVE details |
 | JSON | /instances?type=CVE | NGINX instances CVE details |
 | JSON | /instances?type=timebased&month=M&slot=N |M = 0 to get time-based usage for the current month, -1 for previous month (defaults to -1 if not specified) - N = Aggregation based on N-hours timeslot (defaults to 4 if not specified) |
@@ -145,8 +142,3 @@ Authorization: Basic YWE6YmI=
 ## Visualization
 
 See [Grafana](/contrib/grafana)
-
-
-## Sample report e-mail
-
-<img src="./images/reporting-mail.png"/>

@@ -1,20 +1,26 @@
-FROM ubuntu:latest
-RUN apt-get update
+FROM ubuntu:20.04
 
-RUN apt-get install -y -q build-essential python3-pip python3-dev python3-simplejson git nano curl
-RUN pip3 install --upgrade virtualenv
+ENV TZ=Europe/Rome
+ENV DEBIAN_FRONTEND=noninteractive
 
-RUN mkdir deployment
-RUN virtualenv /deployment/env/
-RUN /deployment/env/bin/python -m pip install --upgrade pip
-RUN /deployment/env/bin/pip3 install fastapi uvicorn requests jinja2 json2html clickhouse-driver
+RUN apt-get update && \
+        apt-get install -y -q build-essential python3-pip python3-dev python3-simplejson git nano curl && \
+        pip3 install fastapi uvicorn requests clickhouse-driver python-dateutil && \
+        # f5ttfs.py
+        pip3 install flask && \
+        mkdir deployment
 
 WORKDIR /deployment
+
+COPY f5ttfs.py .
 COPY app.py .
 COPY nms.py .
 COPY bigiq.py .
 COPY cveDB.py .
 COPY f5ttCH.py .
 COPY utils.py .
+COPY startup.sh .
 
-CMD env/bin/python3 app.py
+RUN chmod +x startup.sh
+
+CMD ./startup.sh

@@ -9,7 +9,6 @@ import threading
 import smtplib
 import urllib3.exceptions
 import base64
-import pandas as pd
 from io import BytesIO
 from requests import Request, Session
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
