@@ -141,4 +141,4 @@ Authorization: Basic YWE6YmI=
 
 ## Visualization
 
-See [Grafana](/contrib/grafana)
+See [Grafana](/contrib/grafana) and [Second Sight GUI](/contrib/GUI)
