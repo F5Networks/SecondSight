@@ -161,7 +161,7 @@ insert into contract_types (id,tag,description) values
 
 insert into archive_types (id,tag,description) values
 (100,'archive.bigiq','BIG-IQ Offline collection tgz file'),
-(101,'archive.nms','NGINX Management Suite full JSON');
+(101,'archive.nms','NGINX full JSON');
 
 insert into json_types (id,tag,uri,description) values
 (100,'json.bigiq.full','/instances','BIG-IQ Full'),
@@ -171,6 +171,6 @@ insert into json_types (id,tag,uri,description) values
 (104,'json.bigiq.fullswonhw','/instances?type=fullSwOnHw','BIG-IQ Full Software on Hardware'),
 (105,'json.bigiq.complete','/instances?type=complete','BIG-IQ Complete'),
 (106,'json.bigiq.utilitybilling','/instances?type=utilityBilling','BIG-IQ Utility Billing'),
-(200,'json.nms.full','/instances','NGINX Management Suite Full'),
-(201,'json.nms.cve','/instances?type=CVE','NGINX Management CVE'),
-(202,'json.nms.timebased','/instances?type=timebased','NGINX Management Time-based')
+(200,'json.nms.full','/instances','NGINX Full'),
+(201,'json.nms.cve','/instances?type=CVE','NGINX CVE'),
+(202,'json.nms.timebased','/instances?type=timebased','NGINX Time-based')

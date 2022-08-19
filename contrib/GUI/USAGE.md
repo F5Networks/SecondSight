@@ -18,3 +18,8 @@
 <img src="/contrib/GUI/screenshots/5.bigiq-swhw.png"/>
 <img src="/contrib/GUI/screenshots/6.nginx-analytics.png"/>
 <img src="/contrib/GUI/screenshots/7.nginx-releases.png"/>
+
+5. The "Reports" section is used to download reports in JSON and PDF format for TMOS devices and NGINX instances
+
+<img src="/contrib/GUI/screenshots/8.tmos-json-report.png"/>
+<img src="/contrib/GUI/screenshots/9.nginx-pdf-report.png"/>
