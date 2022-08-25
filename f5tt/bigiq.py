@@ -170,6 +170,7 @@ def bigIQFetchBillingReport(reportFile):
 # The uri must start with '/'
 def bigIQcallRESTURI(method,uri,body,params=""):
   # Get authorization token
+  time.sleep(0.04)
   authRes = requests.request("POST", this.bigiq_fqdn+"/mgmt/shared/authn/login", json = {'username': this.bigiq_username, 'password': this.bigiq_password}, verify=False, proxies=this.bigiq_proxy)
 
   if authRes.status_code != 200:
@@ -177,6 +178,7 @@ def bigIQcallRESTURI(method,uri,body,params=""):
   authToken = authRes.json()['token']['token']
 
   # Invokes the BIG-IQ REST API method
+  time.sleep(0.04)
   res = requests.request(method, this.bigiq_fqdn+uri, headers = { 'X-F5-Auth-Token': authToken }, json = body, verify=False, proxies=this.bigiq_proxy, params=params)
 
   data = {}

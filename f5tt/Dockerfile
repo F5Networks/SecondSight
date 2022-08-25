@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
         apt-get install -y -q build-essential python3-pip python3-dev python3-simplejson git nano curl && \
-        pip3 install fastapi uvicorn requests clickhouse-driver python-dateutil && \
+        pip3 install fastapi uvicorn requests requests-cache clickhouse-driver python-dateutil && \
         # f5ttfs.py
         pip3 install flask && \
         mkdir deployment

@@ -3,6 +3,7 @@ import sys
 import ssl
 import json
 import requests
+import requests_cache
 import time
 import urllib3.exceptions
 from requests import Request, Session
@@ -10,6 +11,7 @@ from requests import ReadTimeout, ConnectTimeout, HTTPError, Timeout, Connection
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+requests_cache.install_cache('cve_cache')
 
 this = sys.modules[__name__]
 
