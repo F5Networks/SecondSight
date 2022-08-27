@@ -4,7 +4,7 @@
 
 Second Sight is a comprehensive tool that helps tracking NGINX OSS and NGINX Plus instances managed by NGINX Instance Manager/NGINX Management Suite and TMOS (BIG-IP, VIPRION, BIG-IP Virtual Edition) instances managed by BIG-IQ.
 
-The [web GUI](/contrib/GUI) provides visibility and insights on collected data.
+Second Sight [web GUI](/contrib/GUI) provides visibility and insights on collected data.
 
 Raw data is collected from NGINX Instance Manager/NGINX Management Suite and BIG-IQ, aggregated and several JSON reports and visualizations are made available focusing on:
 
@@ -14,6 +14,7 @@ Raw data is collected from NGINX Instance Manager/NGINX Management Suite and BIG
 - Realtime CVE tracking
 - Telemetry data (CPU, RAM, disk, network throughput, ...)
 - Analytics and drill-down
+- vCMP hosts and guests map (for BIG-IP and VIPRION)
 
 Second Sight has been tested against:
 
@@ -39,15 +40,10 @@ Communication to NGINX Instance Manager / BIG-IQ is based on REST API, current f
 
 ## Reporting and visualization
 
-For additional dashboards see the [grafana page](/contrib/grafana)
+Second Sight GUI and sample Grafana dashboards are available:
 
-BIG-IQ analytics
-
-<img src="/contrib/grafana/images/bigiq/grafana-cve-summary.jpg"/>
-
-NGINX Instance Manager analytics
-
-<img src="/contrib/grafana/images/nim/nim-cve-details.jpg"/>
+- [Second Sight GUI walkthrough](/contrib/GUI/USAGE.md)
+- [Grafana dashboards](/contrib/grafana)
 
 ## Architecture
 
@@ -55,23 +51,26 @@ High level
 
 ```mermaid
 graph TD
-BIGIQ([BIG-IQ CM])
+BIGIQ([BIG-IQ CM]) 
 NIM([NGINX Instance Manager])
 
 User([User / external app])
-P2S[[Second Sight]]
-EMAIL[[e-mail server]]
+P2S[[Second Sight collector / F5TT]]
+GUI[[Second Sight GUI]]
+EMAIL([e-mail server])
 BROWSER([Browser])
 MYF5([External REST endpoint])
 
 TMOSVE([TMOS VE])
 BIGIP([BIG-IP])
 VIPRION([VIPRION])
-NGINXOSS([NGINX OSS])
+NGINXOSS([NGINX OSS])  
 NGINXPLUS([NGINX Plus])
 
 P2S -- REST API --> BIGIQ 
 P2S -- REST API --> NIM
+
+GUI --> P2S
 
 BIGIQ --> TMOSVE
 BIGIQ --> BIGIP

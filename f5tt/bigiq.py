@@ -571,8 +571,10 @@ def bigIqSwOnHwjson(fullJSON=None):
 
 
 # Returns a full JSON that includes the software on hardware JSON
-def bigIqFullSwOnHwjson():
-  fullJSON,code = bigIqInventory(mode='JSON')
+def bigIqFullSwOnHwjson(fullJSON=None):
+  if fullJSON is None:
+    fullJSON,code = bigIqInventory(mode='JSON')
+
   swonhw,code = bigIqSwOnHwjson(fullJSON)
 
   fullJSON['report'] = utils.getVersionJson(reportType='Full Software on Hardware',dataplane='BIG-IQ')
@@ -582,8 +584,10 @@ def bigIqFullSwOnHwjson():
 
 
 # Returns a JSON containing defails, counter output, per-device CVE, telemetry and utility billing
-def bigIqCompletejson():
-  fullJSON,code = bigIqInventory(mode='JSON')
+def bigIqCompletejson(fullJSON=None):
+  if fullJSON is None:
+    fullJSON,code = bigIqInventory(mode='JSON')
+
   fullJSON['report'] = utils.getVersionJson(reportType='Complete',dataplane='BIG-IQ')
 
   swonhw,code = bigIqSwOnHwjson(fullJSON)
@@ -600,8 +604,9 @@ def bigIqCompletejson():
 
 
 # Returns a JSON containing utility billing details for VEs and hardware platforms
-def bigIqUtilityBillingjson():
-  fullJSON,code = bigIqInventory(mode='JSON')
+def bigIqUtilityBillingjson(fullJSON=None):
+  if fullJSON is None:
+    fullJSON,code = bigIqInventory(mode='JSON')
 
   output = {}
   output['report'] = utils.getVersionJson(reportType='Utility billing',dataplane='BIG-IQ')

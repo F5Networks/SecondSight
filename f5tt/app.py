@@ -134,6 +134,53 @@ def scheduledEmail(email_server, email_server_port, email_server_type, email_aut
 
         time.sleep(email_interval)
 
+# Returns a json report type starting from a full json report
+# POSTed JSON must have the format:
+# { "type": "REQUESTED_JSON_TYPE", "fulljson": THE_FULL_JSON }
+# REQUESTED_JSON_TYPE can be CVE, CVEbyDevice, SwOnHw, fullSwOnHw, complete, utilityBilling
+@app.post("/getjson")
+@app.post("/f5tt/getjson")
+async def getJson(request: Request):
+    reply = {}
+    code = 404
+    body = json.loads(await request.body())
+    type = body['type']
+    fullReqJSON = body['fulljson']
+
+    if nc_mode == 'BIG_IQ':
+        if type == None:
+          reply,code = bigiq.bigIqInventory(mode='JSON')
+        elif type.lower() == 'cve':
+          reply,code = bigiq.bigIqCVEjson(fullJSON=fullReqJSON)
+        elif type.lower() == 'cvebydevice':
+          reply,code = bigiq.bigIqCVEbyDevicejson(fullJSON=fullReqJSON)
+        elif type.lower() == 'swonhw':
+          reply,code = bigiq.bigIqSwOnHwjson(fullJSON=fullReqJSON)
+        elif type.lower() == 'fullswonhw':
+          reply,code = bigiq.bigIqFullSwOnHwjson(fullJSON=fullReqJSON)
+        elif type.lower() == 'complete':
+          reply,code = bigiq.bigIqCompletejson(fullJSON=fullReqJSON)
+        elif type.lower() == 'utilitybilling':
+          reply,code = bigiq.bigIqUtilityBillingjson(fullJSON=fullReqJSON)
+
+    f5tt_output = reply
+    f5tt_output_media_type = 'application/json'
+
+    # gzip responses supported if the client sends header "Accept-Encoding: gzip"
+    responseSent = False
+
+    if 'Accept-Encoding' in request.headers:
+        if request.headers['Accept-Encoding'] == 'gzip':
+          if request.url.path == '/':
+            deflatedReply = gzip.compress(f5tt_output)
+          else:
+            deflatedReply = gzip.compress(json.dumps(f5tt_output).encode('utf-8'))
+
+          responseSent = True
+          return Response(content=deflatedReply,media_type=f5tt_output_media_type,headers={ 'Content-Encoding': 'gzip' })
+
+    if responseSent == False:
+        return JSONResponse(content=f5tt_output,status_code=code)
 
 # Returns stats in json format
 @app.get("/instances")
@@ -168,7 +215,6 @@ def getInstances(request: Request,type: Optional[str] = None,month: Optional[int
           reply = {}
           code = 404
 
-    # Web UI
     f5tt_output = reply
     f5tt_output_media_type = 'application/json'
 

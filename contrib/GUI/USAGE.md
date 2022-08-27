@@ -9,7 +9,7 @@
 <img src="/contrib/GUI/screenshots/2.bigiq-upload.png"/>
 <img src="/contrib/GUI/screenshots/3.nginx-upload.png"/>
 
-3. The "Archive" section displays the list of all loaded BIG-IQ and NGINX data collections. There's currently a minor cosmetic issue that might require a browser reload if nothing is shown
+3. The "Archive" section displays the list of all loaded BIG-IQ and NGINX data collections. Filtering/search and sorting capabilities are available
 
 <img src="/contrib/GUI/screenshots/4.archive.png"/>
 
