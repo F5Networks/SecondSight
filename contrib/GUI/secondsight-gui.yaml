@@ -34,7 +34,7 @@ services:
 
   f5tt:
     image: fiorucci/f5-telemetry-tracker:latest
-    #pull_policy: always
+    pull_policy: always
     container_name: "f5tt"
     restart: always
     ports:
@@ -49,7 +49,7 @@ services:
 
   secondsight-gui:
     image: fiorucci/secondsight-gui:latest
-    #pull_policy: always
+    pull_policy: always
     container_name: "secondsight-gui"
     restart: always
     depends_on:
