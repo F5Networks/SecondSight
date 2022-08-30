@@ -194,6 +194,14 @@ def nmsInstances(mode):
 
   output['modules'] = modulesTracking
 
+  # NGINX time-based usage
+  tbOutput, tbRetcode = nmsTimeBasedJson(-1,4)
+
+  if tbRetcode != 200:
+    output['timebased'] = {}
+  else:
+    output['timebased'] = tbOutput['instances']
+
   if mode == 'JSON':
     return output,200
 

@@ -20,9 +20,9 @@ the `type` query string parameter can be used to retrieve a logical view of the 
 
 | Output type | URI | Description |
 |---|:---|:---|
-| JSON | /instances | NGINX instances inventory and CVE details |
+| JSON | /instances | NGINX instances inventory, CVE details and time-based usage for last month |
 | JSON | /instances?type=CVE | NGINX instances CVE details |
-| JSON | /instances?type=timebased&month=M&slot=N |M = 0 to get time-based usage for the current month, -1 for previous month (defaults to -1 if not specified) - N = Aggregation based on N-hours timeslot (defaults to 4 if not specified) |
+| JSON | /instances?type=timebased&month=M&slot=N |M = 0 to get time-based usage for the current month, -1 for last month (defaults to -1 if not specified) - N = Aggregation based on N-hours timeslot (defaults to 4 if not specified) |
 
 ### BIG-IQ
 
