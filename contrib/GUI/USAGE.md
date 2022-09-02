@@ -13,15 +13,17 @@
 
 3. The "Archive" section displays the list of all loaded BIG-IQ and NGINX data collections. Filtering/search and sorting capabilities are available
 
-<img src="/contrib/GUI/screenshots/4.archive.png"/>
+<img src="/contrib/GUI/screenshots/3.archive.png"/>
 
-4. The "Dashboard" section is used to display analytics and drill down into TMOS devices and NGINX instances details
+4. The "Dashboard" section is used to display analytics, drill down into TMOS devices and NGINX instances details and display NGINX instances usage
 
-<img src="/contrib/GUI/screenshots/5.bigiq-swhw.png"/>
+<img src="/contrib/GUI/screenshots/4.bigiq-swhw.png"/>
+<img src="/contrib/GUI/screenshots/5.bigiq-telemetry.png"/>
 <img src="/contrib/GUI/screenshots/6.nginx-analytics.png"/>
 <img src="/contrib/GUI/screenshots/7.nginx-releases.png"/>
+<img src="/contrib/GUI/screenshots/8.nginx-timebased.png"/>
 
 5. The "Reports" section is used to download reports in JSON and PDF format for TMOS devices and NGINX instances
 
-<img src="/contrib/GUI/screenshots/8.tmos-json-report.png"/>
-<img src="/contrib/GUI/screenshots/9.nginx-pdf-report.png"/>
+<img src="/contrib/GUI/screenshots/9.tmos-json-report.png"/>
+<img src="/contrib/GUI/screenshots/10.nginx-pdf-report.png"/>

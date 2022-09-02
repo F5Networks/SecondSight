@@ -2,6 +2,8 @@
 
 Second Sight GUI is currently in beta release and not all features are complete/available yet: GitHub issues can be opened to report bugs.
 
+The GUI walkthrough is [available here](/contrib/GUI/USAGE.md)
+
 # How to deploy
 
 The GUI can be deployed using docker compose 1.29+ on a Linux virtual machine running Docker:
@@ -46,8 +48,6 @@ $
 
 The GUI can be accessed browsing to http://<VM_IP_ADDRESS>
 Both username and password are set to `admin`
-
-The GUI walkthrough is [available here](/contrib/GUI/USAGE.md)
 
 ## Removal
 

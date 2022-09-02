@@ -42,90 +42,16 @@ Communication to NGINX Instance Manager / BIG-IQ is based on REST API, current f
 
 Second Sight GUI and sample Grafana dashboards are available:
 
-- [Second Sight GUI walkthrough](/contrib/GUI/USAGE.md)
+- [Second Sight GUI](/contrib/GUI)
 - [Grafana dashboards](/contrib/grafana)
 
-## Architecture
+## F5 Support solutions
 
-High level
+See F5 Support solutions:
 
-```mermaid
-graph TD
-BIGIQ([BIG-IQ CM]) 
-NIM([NGINX Instance Manager])
-
-User([User / external app])
-P2S[[Second Sight collector / F5TT]]
-GUI[[Second Sight GUI]]
-EMAIL([e-mail server])
-BROWSER([Browser])
-MYF5([External REST endpoint])
-
-TMOSVE([TMOS VE])
-BIGIP([BIG-IP])
-VIPRION([VIPRION])
-NGINXOSS([NGINX OSS])  
-NGINXPLUS([NGINX Plus])
-
-P2S -- REST API --> BIGIQ 
-P2S -- REST API --> NIM
-
-GUI --> P2S
-
-BIGIQ --> TMOSVE
-BIGIQ --> BIGIP
-BIGIQ --> VIPRION
-
-NIM --> NGINXOSS
-NIM --> NGINXPLUS
-
-User -- REST API --> P2S
-P2S -- Usage JSON --> User
-
-P2S -- e-mail w/JSON attachment --> EMAIL
-
-BROWSER -- HTTP --> P2S
-P2S -- Grafana Dashboard --> BROWSER
-P2S -- Telemetry Call Home --> MYF5
-```
-
-JSON telemetry mode
-
-```mermaid
-sequenceDiagram
-    participant Control Plane
-    participant Second Sight
-    participant Third party collector
-    participant REST API client
-    participant Email server
-
-    loop Telemetry aggregation
-      Second Sight->>Control Plane: REST API polling
-      Second Sight->>Second Sight: Raw data aggregation
-    end
-    Second Sight->>Third party collector: Push JSON reporting data
-    REST API client->>Second Sight: Fetch JSON reporting data
-    Second Sight->>Email server: Email with attached JSON reporting data
-```
-
-Grafana visualization mode
-
-```mermaid
-sequenceDiagram
-    participant Control Plane
-    participant Second Sight
-    participant Pushgateway
-    participant Prometheus
-    participant Grafana
-
-    loop Telemetry aggregation
-      Second Sight->>Control Plane: REST API polling
-      Second Sight->>Second Sight: Raw data aggregation
-    end
-    Second Sight->>Pushgateway: Push telemetry
-    Prometheus->>Pushgateway: Scrape telemetry
-    Grafana->>Prometheus: Visualization
-```
+- [K83394355: How to count the number of NGINX instances with Second Sight on NGINX Instance Manager](https://support.f5.com/csp/article/K83394355)
+- [K29144504: How to install and use (Offline) Second Sight collection Script on BIG-IQ](https://support.f5.com/csp/article/K29144504)
+- [K94129313: How to install and use Docker Second Sight collection script on BIG-IQ](https://support.f5.com/csp/article/K94129313)
 
 ## Prerequisites
 
@@ -142,6 +68,18 @@ sequenceDiagram
   - BIG-IQ 8.1.0, 8.1.0.2, 8.2.0
 - SMTP server if automated email reporting is used
 - NIST NVD REST API Key for full CVE tracking (https://nvd.nist.gov/developers/request-an-api-key)
+
+## Additional tools
+
+Additional tools can be found [here](/contrib)
+
+- [BIG-IQ Collector](/contrib/bigiq-collect) - Offline BIG-IQ inventory processing
+- [F5TT on BIG-IQ Docker](/contrib/bigiq-docker) - Run F5TT onboard BIG-IQ CM virtual machine
+- [Grafana](/contrib/grafana) - Sample Grafana dashboards
+- [Postman](/contrib/postman) - Sample Postman collection to test and run F5TT
+- [Docker compose](/contrib/docker-compose) - Run F5TT on docker-compose
+- [Kubernetes](/contrib/kubernetes) - Run F5TT on kubernetes to track NGINX usage based on NGINX Instance Manager
+- [Second Sight GUI (beta)](/contrib/GUI) - Web-based GUI for analytics and reporting
 
 # How to run
 
@@ -266,26 +204,6 @@ Service names created by default as Ingress resources are:
 - `pushgateway.f5tt.ff.lan` - Pushgateway web GUI
 - `prometheus.f5tt.ff.lan` - Prometheus web GUI
 - `grafana.f5tt.ff.lan` - Grafana visualization web GUI
-
-## Additional tools
-
-Additional tools can be found [here](/contrib)
-
-- [BIG-IQ Collector](/contrib/bigiq-collect) - Offline BIG-IQ inventory processing
-- [F5TT on BIG-IQ Docker](/contrib/bigiq-docker) - Run F5TT onboard BIG-IQ CM virtual machine
-- [Grafana](/contrib/grafana) - Sample Grafana dashboards
-- [Postman](/contrib/postman) - Sample Postman collection to test and run F5TT
-- [Docker compose](/contrib/docker-compose) - Run F5TT on docker-compose
-- [Kubernetes](/contrib/kubernetes) - Run F5TT on kubernetes to track NGINX usage based on NGINX Instance Manager
-- [Second Sight GUI (beta)](/contrib/GUI) - Web-based GUI for analytics and reporting
-
-## F5 Support solutions
-
-See F5 Support solutions:
-
-- K83394355: How to count the number of NGINX instances with Second Sight on NGINX Instance Manager - https://support.f5.com/csp/article/K83394355
-- K29144504: How to install and use (Offline) Second Sight collection Script on BIG-IQ - https://support.f5.com/csp/article/K29144504
-- K94129313: How to install and use Docker Second Sight collection script - https://support.f5.com/csp/article/K94129313
 
 # Usage
 
