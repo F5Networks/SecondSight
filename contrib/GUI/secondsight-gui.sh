@@ -27,6 +27,7 @@ exit 1
 #
 gui_start() {
 echo "-> Deploying Second Sight GUI"
+docker-compose -f $DOCKER_COMPOSE_YAML pull
 COMPOSE_HTTP_TIMEOUT=240 docker-compose -p $PROJECT_NAME -f $DOCKER_COMPOSE_YAML up -d --remove-orphans
 }
 

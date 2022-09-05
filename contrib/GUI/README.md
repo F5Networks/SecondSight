@@ -36,6 +36,11 @@ Second Sight GUI - https://github.com/F5Networks/SecondSight/
 ```
 $ ./secondsight-gui.sh -c start
 -> Deploying Second Sight GUI
+Pulling postgres        ... done
+Pulling init-db         ... done
+Pulling f5tt            ... done
+Pulling secondsight-gui ... done
+Pulling nginx           ... done
 Creating network "secondsight-gui_default" with the default driver
 Creating volume "secondsight-gui_postgres_data" with default driver
 Creating postgres        ... done

@@ -62,6 +62,7 @@ else
 	mkdir -p /opt/f5tt/{prometheus,grafana/data,grafana/log,grafana/plugins}
 fi
 
+docker-compose -f $DOCKER_COMPOSE_YAML-$MODE.yaml pull
 COMPOSE_HTTP_TIMEOUT=240 docker-compose -p $PROJECT_NAME-$MODE -f $DOCKER_COMPOSE_YAML-$MODE.yaml up -d --remove-orphans
 }
 
