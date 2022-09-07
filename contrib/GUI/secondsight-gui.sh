@@ -9,9 +9,9 @@ This script is used to deploy/undeploy Second Sight GUI using docker-compose\n\n
 === Usage:\n\n
 $0 [options]\n\n
 === Options:\n\n
--h\t\t\t- This help\n
--c [start|stop]\t- Deployment command\n
--x\t\t\t- Remove backend persistent data\n\n
+-h\t\t\t\t- This help\n
+-c [start|stop|restart]\t- Deployment command\n
+-x\t\t\t\t- Remove backend persistent data\n\n
 === Examples:\n\n
 Deploy Second Sight GUI:\t$0 -c start\n
 Remove Second Sight GUI:\t$0 -c stop\n
@@ -39,6 +39,12 @@ echo "-> Undeploying Second Sight GUI"
 COMPOSE_HTTP_TIMEOUT=240 docker-compose -p $PROJECT_NAME -f $DOCKER_COMPOSE_YAML down
 }
 
+gui_restart() {
+echo "-> Restarting and updating Second Sight GUI"
+gui_stop
+gui_start
+}
+
 #
 # Main
 #
@@ -63,7 +69,7 @@ do
         esac
 done
 
-if [ -z "${ACTION}" ] || [[ ! "${ACTION}" == +(start|stop) ]]
+if [ -z "${ACTION}" ] || [[ ! "${ACTION}" == +(start|stop|restart) ]]
 then
 	usage
 fi

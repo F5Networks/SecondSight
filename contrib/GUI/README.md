@@ -73,3 +73,36 @@ Removing postgres        ... done
 Removing network secondsight-gui_default
 $
 ```
+
+## Upgrading
+
+To restart and upgrade Second Sight GUI run:
+
+```
+$ ./secondsight-gui.sh -c restart
+-> Restarting and updating Second Sight GUI
+-> Undeploying Second Sight GUI
+Stopping nginx           ... done
+Stopping secondsight-gui ... done
+Stopping f5tt            ... done
+Stopping postgres        ... done
+Removing nginx           ... done
+Removing secondsight-gui ... done
+Removing init-db         ... done
+Removing f5tt            ... done
+Removing postgres        ... done
+Removing network secondsight-gui_default
+-> Deploying Second Sight GUI
+Pulling postgres        ... done
+Pulling init-db         ... done
+Pulling f5tt            ... done
+Pulling secondsight-gui ... done
+Pulling nginx           ... done
+Creating network "secondsight-gui_default" with the default driver
+Creating f5tt     ... done
+Creating postgres ... done
+Creating init-db  ... done
+Creating secondsight-gui ... done
+Creating nginx           ... done
+$
+```
