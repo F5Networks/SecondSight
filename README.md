@@ -6,7 +6,11 @@ Second Sight is a comprehensive tool that helps tracking NGINX OSS and NGINX Plu
 
 Second Sight [web GUI](/contrib/GUI) provides visibility and insights on collected data.
 
-Raw data is collected from NGINX Instance Manager/NGINX Management Suite and BIG-IQ, aggregated and several JSON reports and visualizations are made available focusing on:
+<img src="/contrib/GUI/screenshots/4.bigiq-swhw.png"/>
+
+<img src="/contrib/GUI/screenshots/6.nginx-analytics.png"/>
+
+Raw data is collected from NGINX Instance Manager/NGINX Management Suite and BIG-IQ to provide visibility and insights on:
 
 - Software usage
 - Hardware usage
@@ -15,6 +19,7 @@ Raw data is collected from NGINX Instance Manager/NGINX Management Suite and BIG
 - Telemetry data (CPU, RAM, disk, network throughput, ...)
 - Analytics and drill-down
 - vCMP hosts and guests map (for BIG-IP and VIPRION)
+- Time-based usage reporting (for NGINX OSS, NGINX Plus, NGINX App Protect WAF and NGINX App Protect WAF DoS)
 
 Second Sight has been tested against:
 
