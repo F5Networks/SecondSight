@@ -27,6 +27,8 @@ services:
     command: /initdb.sh
     volumes:
       - ./psql/psql-init.sql:/psql-init.sql
+      - ./psql/psql-schema.sql:/psql-schema.sql
+      - ./psql/psql-data.sql:/psql-data.sql
       - ./psql/initdb.sh:/initdb.sh
     depends_on:
       postgres:

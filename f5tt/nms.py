@@ -344,18 +344,18 @@ def nmsTimeBasedJson(monthStats,hourInterval):
           item['ts']['from'] = str(tuple[0])
           item['ts']['to'] = str(tuple[1])
           item['nginx_oss'] = {}
-          item['nginx_oss']['managed'] = tuple[2]
-          item['nginx_oss']['online'] = tuple[3]
-          item['nginx_oss']['offline'] = tuple[4]
+          item['nginx_oss']['managed'] = tuple[2] if tuple[2] != "" else "0"
+          item['nginx_oss']['online'] = tuple[3] if tuple[3] != "" else "0"
+          item['nginx_oss']['offline'] = tuple[4] if tuple[4] != "" else "0"
           item['nginx_plus'] = {}
-          item['nginx_plus']['managed'] = tuple[5]
-          item['nginx_plus']['online'] = tuple[6]
-          item['nginx_plus']['offline'] = tuple[7]
+          item['nginx_plus']['managed'] = tuple[5] if tuple[5] != "" else "0"
+          item['nginx_plus']['online'] = tuple[6] if tuple[6] != "" else "0"
+          item['nginx_plus']['offline'] = tuple[7] if tuple[7] != "" else "0"
           item['modules'] = {}
-          item['modules']['ngx_http_app_protect_module'] = tuple[8]
-          item['modules']['ngx_http_app_protect_dos_module'] = tuple[9]
-          item['modules']['ngx_http_js_module'] = tuple[10]
-          item['modules']['ngx_stream_js_module'] = tuple[11]
+          item['modules']['ngx_http_app_protect_module'] = tuple[8] if tuple[8] != "" else "0"
+          item['modules']['ngx_http_app_protect_dos_module'] = tuple[9] if tuple[9] != "" else "0"
+          item['modules']['ngx_http_js_module'] = tuple[10] if tuple[10] != "" else "0"
+          item['modules']['ngx_stream_js_module'] = tuple[11] if tuple[11] != "" else "0"
 
           output['instances'].append(item)
     return output,200
