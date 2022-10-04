@@ -1,12 +1,6 @@
 --
 -- Default & builtin data
 --
-insert into config (name,value) values
-('dataplane.address','http://nim.test.lab'),
-('dataplane.type','NGINX Management Suite'),
-('f5tt.helper.address','http://f5tt:5001'),
-('f5tt.address','http://f5tt:5000');
-
 insert into audit_types (id,tag,description) values
 (100,'user.login','User login'),
 (101,'user.logout','User logout'),

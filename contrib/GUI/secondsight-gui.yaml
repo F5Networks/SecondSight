@@ -54,6 +54,8 @@ services:
     pull_policy: always
     container_name: "secondsight-gui"
     restart: always
+    volumes:
+      - ./etc/secondsight.properties:/app/secondsight.properties
     depends_on:
       postgres:
         condition: service_healthy
