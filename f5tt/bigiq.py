@@ -340,6 +340,7 @@ def bigIqInventory(mode):
           inventoryData['isVirtual']=item['isVirtual']
           inventoryData['isClustered']=item['isClustered']
           inventoryData['platformMarketingName']=platformMarketingName
+          inventoryData['machineId']=item['machineId']
           inventoryData['restFrameworkVersion']=item['restFrameworkVersion']
           inventoryData['licensedModules']=licensedModules
           inventoryData['provisionedModules']=provModules['provisionedModules']

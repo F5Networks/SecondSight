@@ -14,12 +14,6 @@ create table if not exists audit_types (
 	description 	varchar(128) default ''::character varying not null
 );
 
-create table if not exists contract_types (
-	id		integer unique,
-	tag		varchar(64) default ''::character varying not null primary key unique,
-	description 	varchar(128) default ''::character varying not null
-);
-
 create table if not exists audit_log (
 	id		serial primary key,
 	ts		timestamp with time zone default now(),
@@ -34,22 +28,6 @@ create table if not exists audit_log (
 create view all_audit_log as
 	select audit_log.*,audit_types.description from audit_log, audit_types where audit_log.tag = audit_types.id;
 
-create table if not exists contracts (
-	id		serial unique,
-	legalid		varchar(128) unique,
-	contracttype	integer,
-	description	varchar(256),
-
-	primary key (legalid,contracttype),
-	foreign key (contracttype) references contract_types(id)
-);
-
-create view all_contracts as
-	select contracts.id, contracts.legalid, contracts.description, contract_types.tag, contract_types.description
-	as contract_types_description
-	from contracts, contract_types
-	where contracts.contracttype = contract_types.id;
-
 create table if not exists archive_types (
 	id		integer unique,
 	tag		varchar(64) default ''::character varying not null primary key unique,
@@ -61,23 +39,17 @@ create table if not exists archives (
 	ts		timestamp with time zone default now(),
 	archive_type	integer not null,
 	uid		uuid unique,
-	contract_id	integer,
 	description	varchar(256),
 
-	foreign key (archive_type) references archive_types(id),
-	foreign key (contract_id) references contracts(id)
+	foreign key (archive_type) references archive_types(id)
 );
 
 create view all_archives as
 	select archives.id, archives.ts, archives.archive_type, archive_types.tag as archive_tag,
 	archives.description as archive_description,
-	archive_types.description as archive_types_description, archives.uid, archives.contract_id,
-	contract_types.tag as contract_tag,contract_types.description as contract_description,
-	contracts.legalid
-	from archives,archive_types,contracts,contract_types
-	where archives.contract_id=contracts.id
-	and archives.archive_type=archive_types.id
-	and contracts.contracttype=contract_types.id;
+	archive_types.description as archive_types_description, archives.uid
+	from archives,archive_types
+	where archives.archive_type=archive_types.id;
 
 create table if not exists bigiq_files (
 	id		serial primary key unique,
@@ -152,10 +124,11 @@ create table if not exists edw_pool_reg_keys (
 
 create table if not exists edw_ve_hostnames (
         id                              serial unique,
-        hostname                        varchar(256),
+        hostname                        varchar(256) default '',
+	machineid			varchar(64) default '',
         pool_reg_key                    integer,
 
-        primary key (hostname,pool_reg_key),
+        primary key (hostname,machineid,pool_reg_key),
         foreign key (pool_reg_key) references edw_pool_reg_keys(id)
 );
 
@@ -168,30 +141,135 @@ select
         edw_customers.end_customer_name as end_customer_name,
         edw_contracts.start_date as legal_contract_start_date,
         edw_contracts.end_date as legal_contract_end_date,
-        edw_ve_hostnames.hostname as hostname
+        edw_ve_hostnames.hostname as hostname,
+	edw_ve_hostnames.machineid as machineid
 from
         edw_customers,edw_contracts,edw_salesorders,edw_pool_reg_keys,edw_ve_hostnames
 where
-        edw_customers.id = edw_contracts.end_customer and    
+        edw_customers.id = edw_contracts.end_customer and
         edw_contracts.id = edw_salesorders.legal_contract_id and
         edw_salesorders.id = edw_pool_reg_keys.sales_order_id and
-        edw_pool_reg_keys.id = edw_ve_hostnames.pool_reg_key; 
+        edw_pool_reg_keys.id = edw_ve_hostnames.pool_reg_key;
+
+create view edw_hw_data as
+select
+        edw_regkeys.regkey as regkey,
+        edw_contracts.legal_contract as legal_contract_id,
+        edw_salesorders.sales_order as sales_order,
+        edw_regkeys.serial_number as serial_number,
+        edw_customers.end_customer_name as end_customer_name,
+        edw_contracts.start_date as legal_contract_start_date,
+        edw_contracts.end_date as legal_contract_end_date,
+        '' as hostname
+from
+        edw_customers,edw_contracts,edw_salesorders,edw_regkeys
+where
+        edw_customers.id = edw_contracts.end_customer and
+        edw_contracts.id = edw_salesorders.legal_contract_id and
+        edw_salesorders.id = edw_regkeys.sales_order_id;
+
+create table if not exists archive_to_contract (
+	id		serial unique,
+	archive_uid	uuid,
+	contract_id	integer,
+
+	primary key (archive_uid,contract_id),
+	foreign key (archive_uid) references archives(uid),
+	foreign key (contract_id) references edw_contracts(id)
+);
+
+create table if not exists sw_on_hw (
+	id			serial unique,
+	archive_uid		uuid,
+	contract_id		integer,
+	rating_platform_module	varchar(32),
+	as_of_date		varchar(16),
+	quantity		integer,
+	dss_create_time		varchar(32),
+	trash_flag		boolean,
+	trash_reason		varchar(256),
+
+	primary key (archive_uid,contract_id,rating_platform_module),
+	foreign key (archive_uid) references archives(uid),
+	foreign key (contract_id) references edw_contracts(id)
+);
+
+create view all_sw_on_hw as
+select
+	edw_customers.end_customer_name,sw_on_hw.archive_uid,edw_contracts.legal_contract,sw_on_hw.rating_platform_module,sw_on_hw.as_of_date,
+	sw_on_hw.quantity,sw_on_hw.dss_create_time,sw_on_hw.trash_flag,sw_on_hw.trash_reason
+from
+	sw_on_hw,edw_contracts,edw_customers
+where
+	sw_on_hw.contract_id=edw_contracts.id
+	and edw_contracts.end_customer=edw_customers.id;
+
+--
+-- EDW data import
+--
+create table if not exists view_rpt_big_iq_ela_json_detail_licensing (
+        legal_contract_id			varchar(128),
+        image_instance_id			varchar(128),
+        image_instance_sku			varchar(128),
+        pool_name				varchar(128),
+        billing_month_start_date		varchar(128),
+        dim_billing_month_start_date_key	varchar(128),
+        billing_month_end_date			varchar(128),
+        dim_billing_month_end_date_key		varchar(128),
+        list_price				varchar(128),
+        pool_reg_key				varchar(128),
+        pool_serial_num				varchar(128),
+        hostname				varchar(128),
+        grant_dt				varchar(128),
+        dim_grant_date_key			varchar(128),
+        revoke_dt				varchar(128),
+        dim_revoke_date_key			varchar(128),
+        duration_in_days			varchar(128),
+        dim_end_customer_key			varchar(128),
+        dim_bill_to_customer_key		varchar(128),
+        dim_ship_to_customer_key		varchar(128),
+        dim_supporting_reseller_customer_key	varchar(128),
+        reduction_to_usage_amount		varchar(128),
+        comments				varchar(1024),
+        approved_by				varchar(128),
+        dispute_reason				varchar(128),
+        login					varchar(128),
+        dispute_create_time			varchar(128),
+	chargeback_tag				varchar(128)
+);
+
+create table if not exists view_rpt_ela_big_iq_clarify_serial_num (
+        legal_contract_id		varchar(128),
+        legal_contract_start_date       varchar(128),
+        legal_contract_end_date		varchar(128),
+        bill_to_customer_name		varchar(128),
+        end_customer_name		varchar(128),
+        sales_order			varchar(128),
+        serial_number			varchar(128),
+        part_number			varchar(128),
+        feature_value			varchar(128),
+        registrationkey			varchar(128)
+);
+
+create table if not exists view_user_entry_big_iq_ela_sizing (
+        legal_contract_id	varchar(128),
+        image_instance_sku	varchar(128),
+        sku_quantity		varchar(128),
+        login			varchar(128),
+        dss_create_time		varchar(128)
+);
 
 --
 -- General purpose views
 --
 create view all_reports as
 select
-    contracts.id as contract_id, contracts.legalid as contract_legalid,
-    contract_types.tag as contract_type_tag, contract_types.description as contract_type_description,  
     archives.uid as archive_uid, archives.description as archive_description,
     json_types.id as json_type_id, json_types.description as json_type,
     json_reports.id as json_report_id, json_types.tag as json_report_tag, json_types.description as json_type_description
 from
-    json_types, json_reports, archives, archive_types, contracts, contract_types
+    json_types, json_reports, archives, archive_types
 where
     json_reports.typeid = json_types.id and
     json_reports.archive_uid = archives.uid and
-    archives.archive_type = archive_types.id and
-    archives.contract_id = contracts.id and
-    contracts.contracttype = contract_types.id;
+    archives.archive_type = archive_types.id
