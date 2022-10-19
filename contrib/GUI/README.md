@@ -1,6 +1,6 @@
 # Second Sight GUI
 
-Second Sight GUI is currently in beta release and not all features are complete/available yet: GitHub issues can be opened to report bugs.
+Second Sight GUI is currently in active development: GitHub issues can be opened to report bugs.
 
 The GUI walkthrough is [available here](/contrib/GUI/USAGE.md)
 

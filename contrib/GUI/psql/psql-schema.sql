@@ -139,6 +139,7 @@ select
         edw_salesorders.sales_order as sales_order,
         '' as serial_number,
         edw_customers.end_customer_name as end_customer_name,
+        edw_customers.id as end_customer_id,
         edw_contracts.start_date as legal_contract_start_date,
         edw_contracts.end_date as legal_contract_end_date,
         edw_ve_hostnames.hostname as hostname,
@@ -158,6 +159,7 @@ select
         edw_salesorders.sales_order as sales_order,
         edw_regkeys.serial_number as serial_number,
         edw_customers.end_customer_name as end_customer_name,
+        edw_customers.id as end_customer_id,
         edw_contracts.start_date as legal_contract_start_date,
         edw_contracts.end_date as legal_contract_end_date,
         '' as hostname
