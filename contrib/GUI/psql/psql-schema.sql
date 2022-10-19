@@ -25,6 +25,7 @@ create table if not exists audit_log (
 	foreign key (tag) references audit_types(id)
 );
 
+drop view all_audit_log;
 create view all_audit_log as
 	select audit_log.*,audit_types.description from audit_log, audit_types where audit_log.tag = audit_types.id;
 
@@ -44,6 +45,7 @@ create table if not exists archives (
 	foreign key (archive_type) references archive_types(id)
 );
 
+drop view all_archives;
 create view all_archives as
 	select archives.id, archives.ts, archives.archive_type, archive_types.tag as archive_tag,
 	archives.description as archive_description,
@@ -72,6 +74,7 @@ create table if not exists json_reports (
 	foreign key (archive_uid) references archives(uid)
 );
 
+drop view all_json_reports;
 create view all_json_reports as
 	select json_reports.id,json_reports.archive_uid,json_reports.ts,json_reports.typeid,
 		json_types.tag,json_types.uri,json_types.description
@@ -132,6 +135,7 @@ create table if not exists edw_ve_hostnames (
         foreign key (pool_reg_key) references edw_pool_reg_keys(id)
 );
 
+drop view edw_ve_data;
 create view edw_ve_data as
 select
         edw_pool_reg_keys.pool_reg_key as regkey,
@@ -152,6 +156,7 @@ where
         edw_salesorders.id = edw_pool_reg_keys.sales_order_id and
         edw_pool_reg_keys.id = edw_ve_hostnames.pool_reg_key;
 
+drop view edw_hw_data;
 create view edw_hw_data as
 select
         edw_regkeys.regkey as regkey,
@@ -196,6 +201,7 @@ create table if not exists sw_on_hw (
 	foreign key (contract_id) references edw_contracts(id)
 );
 
+drop view all_sw_on_hw;
 create view all_sw_on_hw as
 select
 	edw_customers.end_customer_name,sw_on_hw.archive_uid,edw_contracts.legal_contract,sw_on_hw.rating_platform_module,sw_on_hw.as_of_date,
@@ -264,6 +270,7 @@ create table if not exists view_user_entry_big_iq_ela_sizing (
 --
 -- General purpose views
 --
+drop view all_reports;
 create view all_reports as
 select
     archives.uid as archive_uid, archives.description as archive_description,
