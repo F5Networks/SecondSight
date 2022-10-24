@@ -189,6 +189,7 @@ create table if not exists sw_on_hw (
 	id			serial unique,
 	archive_uid		uuid,
 	contract_id		integer,
+	sku_prefix		varchar(4),
 	rating_platform_module	varchar(32),
 	as_of_date		varchar(16),
 	quantity		integer,
@@ -196,7 +197,7 @@ create table if not exists sw_on_hw (
 	trash_flag		boolean,
 	trash_reason		varchar(256),
 
-	primary key (archive_uid,contract_id,rating_platform_module),
+	primary key (archive_uid,contract_id,sku_prefix,rating_platform_module),
 	foreign key (archive_uid) references archives(uid),
 	foreign key (contract_id) references edw_contracts(id)
 );
@@ -204,7 +205,8 @@ create table if not exists sw_on_hw (
 drop view all_sw_on_hw;
 create view all_sw_on_hw as
 select
-	edw_customers.end_customer_name,sw_on_hw.archive_uid,edw_contracts.legal_contract,sw_on_hw.rating_platform_module,sw_on_hw.as_of_date,
+	edw_customers.end_customer_name,sw_on_hw.archive_uid,edw_contracts.legal_contract,sw_on_hw.sku_prefix,
+	sw_on_hw.rating_platform_module,sw_on_hw.as_of_date,
 	sw_on_hw.quantity,sw_on_hw.dss_create_time,sw_on_hw.trash_flag,sw_on_hw.trash_reason
 from
 	sw_on_hw,edw_contracts,edw_customers

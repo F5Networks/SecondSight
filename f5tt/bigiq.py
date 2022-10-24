@@ -577,6 +577,8 @@ def bigIqFullSwOnHwjson(fullJSON=None):
     fullJSON,code = bigIqInventory(mode='JSON')
 
   swonhw,code = bigIqSwOnHwjson(fullJSON)
+  swonhw.pop('report')
+
 
   fullJSON['report'] = utils.getVersionJson(reportType='Full Software on Hardware',dataplane='BIG-IQ')
   fullJSON['swonhw'] = swonhw
