@@ -44,9 +44,9 @@ def scheduledPush(url, username, password, interval, pushmode):
         try:
             if nc_mode == 'NGINX_MANAGEMENT_SYSTEM':
                 if pushmode == 'CUSTOM':
-                    payload = nms.nmsInstances(mode='JSON')
+                    payload,code = nms.nmsInstances(mode='JSON')
                 elif pushmode == 'PUSHGATEWAY':
-                    payload = nms.nmsInstances(mode='PUSHGATEWAY')
+                    payload,code = nms.nmsInstances(mode='PUSHGATEWAY')
             elif nc_mode == 'BIG_IQ':
                 if pushmode == 'CUSTOM':
                     payload,code = bigiq.bigIqInventory(mode='JSON')
@@ -91,9 +91,8 @@ def scheduledEmail(email_server, email_server_port, email_server_type, email_aut
     while True:
         try:
             if nc_mode == 'NGINX_MANAGEMENT_SYSTEM':
-                payload = nms.nmsInstances(mode='JSON')
-                jsonPayload = json.loads(payload)
-                subscriptionId = '[' + jsonPayload['subscription']['id'] + '] '
+                payload,code = nms.nmsInstances(mode='JSON')
+                subscriptionId = '[' + payload['subscription']['id'] + '] '
                 subjectPostfix = 'NGINX Usage Reporting'
                 attachname = 'nginx_report.json'
             elif nc_mode == 'BIG_IQ':
@@ -343,7 +342,7 @@ if __name__ == '__main__':
                     email_auth_user = ''
                     email_auth_pass = ''
 
-                print('Email reporting to', email_recipient, 'every', email_interval, 'days')
+                print('Email reporting to', email_recipient, 'every', email_interval, 'minutes')
                 print('Running push thread')
                 emailThread = threading.Thread(target=scheduledEmail, args=(
                 email_server, email_server_port, email_server_type, email_auth_user, email_auth_pass, email_sender,

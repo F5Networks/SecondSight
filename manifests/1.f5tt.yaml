@@ -114,7 +114,7 @@ spec:
           #- name: EMAIL_ENABLED
           #  value: "false"
           #- name: EMAIL_INTERVAL
-            # EMAIL_INTERVAL specified in days
+            # EMAIL_INTERVAL specified in minutes
           #  value: "5"
 
           #- name: EMAIL_SERVER
