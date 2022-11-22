@@ -78,14 +78,6 @@ See F5 Support solutions:
 
 Additional tools can be found [here](/contrib)
 
-- [BIG-IQ Collector](/contrib/bigiq-collect) - Offline BIG-IQ inventory processing
-- [F5TT on BIG-IQ Docker](/contrib/bigiq-docker) - Run F5TT onboard BIG-IQ CM virtual machine
-- [Grafana](/contrib/grafana) - Sample Grafana dashboards
-- [Postman](/contrib/postman) - Sample Postman collection to test and run F5TT
-- [Docker compose](/contrib/docker-compose) - Run F5TT on docker-compose
-- [Kubernetes](/contrib/kubernetes) - Run F5TT on kubernetes to track NGINX usage based on NGINX Instance Manager
-- [Second Sight GUI (beta)](/contrib/GUI) - Web-based GUI for analytics and reporting
-
 # How to run
 
 ## On Docker Compose
