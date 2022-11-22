@@ -23,7 +23,6 @@
 <img src="/contrib/GUI/screenshots/7.nginx-releases.png"/>
 <img src="/contrib/GUI/screenshots/8.nginx-timebased.png"/>
 
-5. The "Reports" section is used to download reports in JSON and PDF format for TMOS devices and NGINX instances
+5. The "Reports" section is used to download reports in JSON, PDF, XLS, PPTX, DOCX and CSV format for TMOS devices and NGINX instances
 
-<img src="/contrib/GUI/screenshots/9.tmos-json-report.png"/>
-<img src="/contrib/GUI/screenshots/10.nginx-pdf-report.png"/>
+<img src="/contrib/GUI/screenshots/9.reporting.png"/>
