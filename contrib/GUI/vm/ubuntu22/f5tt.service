@@ -1,0 +1,9 @@
+[Unit]
+Description=Second Sight - F5TT
+
+[Service]
+Type=simple
+ExecStart=/app/contrib/bigiq-collect/f5tt-start.sh
+
+[Install]
+WantedBy=multi-user.target

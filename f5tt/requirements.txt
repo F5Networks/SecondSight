@@ -4,3 +4,4 @@ requests
 requests_cache
 clickhouse-driver
 flask
+python-dateutil

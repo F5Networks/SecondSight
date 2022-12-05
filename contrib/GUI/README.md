@@ -6,13 +6,15 @@ The GUI walkthrough is [available here](/contrib/GUI/USAGE.md)
 
 # How to deploy
 
-The GUI can be deployed using docker compose 1.29+ on a Linux virtual machine running Docker:
+The GUI can be deployed:
+
+- using docker compose 1.29+
+- on a Linux virtual machine without docker
 
 ```
-$ ./secondsight-gui.sh 
 Second Sight GUI - https://github.com/F5Networks/SecondSight/
 
- This script is used to deploy/undeploy Second Sight GUI using docker-compose
+ This script is used to deploy/undeploy Second Sight GUI
 
  === Usage:
 
@@ -20,18 +22,37 @@ Second Sight GUI - https://github.com/F5Networks/SecondSight/
 
  === Options:
 
- -h                     - This help
- -c [start|stop]        - Deployment command
- -x                     - Remove backend persistent data
+ -h                                             - This help
+ -c [start|stop|restart|deploy|undeploy]        - Deployment command
+ -x                                             - Remove backend persistent data
 
  === Examples:
 
- Deploy Second Sight GUI:       ./secondsight-gui.sh -c start
- Remove Second Sight GUI:       ./secondsight-gui.sh -c stop
- Remove backend data:           ./secondsight-gui.sh -x
+ Deploy GUI with Docker compose:        ./secondsight-gui.sh -c start
+ Remove GUI from Docker compose:        ./secondsight-gui.sh -c stop
+ Restart and update docker images:      ./secondsight-gui.sh -c restart
+
+ Deploy GUI on Linux VM:                ./secondsight-gui.sh -c deploy
+ Remove GUI from Linux VM:              ./secondsight-gui.sh -c undeploy
+
+ Remove backend data:                   ./secondsight-gui.sh -x
 ```
 
-## Deployment
+## Deployment on a Linux VM without docker:
+
+Deploying to a Linux VM without docker currently supports Ubuntu 22.04 server:
+
+```
+$ sudo ./secondsight-gui.sh -c deploy
+```
+
+To undeploy:
+
+```
+$ sudo ./secondsight-gui.sh -c undeploy
+```
+
+## Deployment using docker-compose
 
 ```
 $ ./secondsight-gui.sh -c start
@@ -54,7 +75,7 @@ $
 The GUI can be accessed browsing to http://<VM_IP_ADDRESS>
 Both username and password are set to `admin`
 
-## Removal
+## Removal using docker-compose
 
 To undeploy Second Sight GUI run:
 
@@ -74,7 +95,7 @@ Removing network secondsight-gui_default
 $
 ```
 
-## Upgrading
+## Upgrading using docker-compose
 
 To restart and upgrade Second Sight GUI run:
 

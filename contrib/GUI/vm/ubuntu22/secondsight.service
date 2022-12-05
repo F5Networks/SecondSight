@@ -1,0 +1,9 @@
+[Unit]
+Description=Second Sight
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/java -jar /app/secondsight.jar
+
+[Install]
+WantedBy=multi-user.target
