@@ -72,7 +72,8 @@ case $distro in
 		apt -y install $PACKAGES
 
 		# Configuration files
-		mkdir -p /app /app/contrib
+		mkdir -p /opt/secondsight/contrib
+		ln -s /opt/secondsight /app
 		cp etc/secondsight.properties /app/
 
 		# F5tt
