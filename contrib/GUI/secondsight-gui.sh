@@ -127,7 +127,8 @@ case $distro in
 		PACKAGES="postgresql-14 openjdk-18-jre nginx python3-pip ttf-mscorefonts-installer"
 		apt -y remove $PACKAGES
 
-		rm -r /app
+		rm /app
+		rm -r /opt/secondsight
 	;;
 	*)
 		echo "Error: this Linux distribution is not currently supported"
