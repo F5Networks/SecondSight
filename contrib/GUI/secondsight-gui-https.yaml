@@ -1,0 +1,79 @@
+version: "3.2"
+
+volumes:
+  postgres_data:
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: "postgres"
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=admin
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/pgdata:rw
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  init-db:
+    image: postgres:15
+    container_name: "init-db"
+    command: /initdb.sh
+    volumes:
+      - ./psql/psql-init.sql:/psql-init.sql
+      - ./psql/psql-schema.sql:/psql-schema.sql
+      - ./psql/psql-data.sql:/psql-data.sql
+      - ./psql/initdb.sh:/initdb.sh
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  f5tt:
+    image: fiorucci/f5-telemetry-tracker:latest
+    pull_policy: always
+    container_name: "f5tt"
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - DATAPLANE_TYPE=BIG_IQ
+      - DATAPLANE_FQDN=http://127.0.0.1:5001
+      - DATAPLANE_USERNAME="notused"
+      - DATAPLANE_PASSWORD="notused"
+      ### Optional NIST API Key for CVE tracking (https://nvd.nist.gov/developers/request-an-api-key)
+      #- NIST_API_KEY=xxxxxxx
+
+  secondsight-gui:
+    image: fiorucci/secondsight-gui:latest
+    pull_policy: always
+    container_name: "secondsight-gui"
+    restart: always
+    volumes:
+      - ./etc/secondsight.properties:/app/secondsight.properties
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    depends_on:
+      init-db:
+        condition: service_completed_successfully
+
+  nginx:
+    image: nginx
+    network_mode: "host"
+    container_name: "nginx"
+    restart: always
+    volumes:
+      - ./ssl/secondsight.crt:/etc/ssl/secondsight.crt
+      - ./ssl/secondsight.key:/etc/ssl/secondsight.key
+      - ./nginx/secondsight-gui-https.conf:/etc/nginx/conf.d/secondsight-gui-https.conf
+      - /dev/null:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - secondsight-gui

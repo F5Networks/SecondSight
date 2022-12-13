@@ -7,16 +7,19 @@ usage() {
 BANNER="Second Sight GUI - https://github.com/F5Networks/SecondSight/\n\n
 This script is used to deploy/undeploy Second Sight GUI\n\n
 === Usage:\n\n
-$0 [options]\n\n
+$0 [-h | -c <action> [-s -C cert.pem -K key.pem] | -x]\n\n
 === Options:\n\n
 -h\t\t\t\t\t\t- This help\n
 -c [start|stop|restart|deploy|undeploy]\t- Deployment command\n
 -x\t\t\t\t\t\t- Remove backend persistent data\n\n
+-s\t\t\t\t\t\t- Publish the GUI using HTTPS (requires cert and key)\n
+-C [cert.pem]\t\t\t\t\t- HTTPS TLS certificate file in .pem format (mandatory with -s)\n
+-K [key.pem]\t\t\t\t\t- HTTPS TLS certificate file in .pem format (mandatory with -s)\n\n
 === Examples:\n\n
-Deploy GUI with Docker compose:\t$0 -c start\n
+Deploy HTTPS GUI with Docker compose:\t$0 -c start -s -C certfile.pem -K keyfile.pem\n
 Remove GUI from Docker compose:\t$0 -c stop\n
 Restart and update docker images:\t$0 -c restart\n\n
-Deploy GUI on Linux VM:\t\t$0 -c deploy\n
+Deploy HTTP GUI on Linux VM:\t\t$0 -c deploy\n
 Remove GUI from Linux VM:\t\t$0 -c undeploy\n\n
 Remove backend data:\t\t\t$0 -x\n
 "
@@ -30,8 +33,22 @@ exit 1
 #
 gui_start() {
 echo "-> Deploying Second Sight GUI with docker-compose"
-docker-compose -f $DOCKER_COMPOSE_YAML pull
-COMPOSE_HTTP_TIMEOUT=240 docker-compose -p $PROJECT_NAME -f $DOCKER_COMPOSE_YAML up -d --remove-orphans
+
+if [ $# == 2 ]
+then
+	# Deploying in HTTPS mode
+	YAML_FILE=$DOCKER_COMPOSE_YAML_HTTPS
+	CERT_FILE=$1
+	KEY_FILE=$2
+	cp $CERT_FILE ssl/secondsight.crt
+	cp $KEY_FILE ssl/secondsight.key
+else
+	# Deploying in HTTP mode
+	YAML_FILE=$DOCKER_COMPOSE_YAML_HTTP
+fi
+
+docker-compose -f $YAML_FILE pull
+COMPOSE_HTTP_TIMEOUT=240 docker-compose -p $PROJECT_NAME -f $YAML_FILE up -d --remove-orphans
 }
 
 #
@@ -39,11 +56,21 @@ COMPOSE_HTTP_TIMEOUT=240 docker-compose -p $PROJECT_NAME -f $DOCKER_COMPOSE_YAML
 #
 gui_stop() {
 echo "-> Undeploying Second Sight GUI with docker-compose"
-COMPOSE_HTTP_TIMEOUT=240 docker-compose -p $PROJECT_NAME -f $DOCKER_COMPOSE_YAML down
+
+if [ $# == 2 ]
+then
+	# Undeploying in HTTPS mode
+	YAML_FILE=$DOCKER_COMPOSE_YAML_HTTPS
+else
+	# Undeploying in HTTP mode
+	YAML_FILE=$DOCKER_COMPOSE_YAML_HTTP
+fi
+
+COMPOSE_HTTP_TIMEOUT=240 docker-compose -p $PROJECT_NAME -f $YAML_FILE down
 }
 
 gui_restart() {
-echo "-> Restarting and updating Second Sight GUI"
+echo "-> Restarting and updating Second Sight GUI with docker-compose"
 gui_stop
 gui_start
 }
@@ -99,7 +126,20 @@ case $distro in
 		systemctl start secondsight
 
 		# NGINX init
-		cp nginx/secondsight-gui.conf /etc/nginx/conf.d/
+		if [ $# == 2 ]
+		then
+			# Deploying in HTTPS mode
+			CERT_FILE=$1
+			KEY_FILE=$2
+			mkdir -p /etc/ssl
+			cp $CERT_FILE /etc/ssl/secondsight.crt
+			cp $KEY_FILE /etc/ssl/secondsight.key
+			cp nginx/secondsight-gui-https.conf /etc/nginx/conf.d/
+		else
+			# Deploying in HTTP mode
+			cp nginx/secondsight-gui-http.conf /etc/nginx/conf.d/
+		fi
+
 		rm /etc/nginx/sites-enabled/*
 		nginx -s reload
 	;;
@@ -127,7 +167,7 @@ case $distro in
 		PACKAGES="postgresql-14 openjdk-18-jre nginx python3-pip ttf-mscorefonts-installer"
 		apt -y remove $PACKAGES
 
-		rm /app
+		rm /app /etc/nginx/conf.d/secondsight-gui.conf /etc/ssl/secondsight.*
 		rm -r /opt/secondsight
 	;;
 	*)
@@ -270,10 +310,11 @@ check_distro() {
 # Main
 #
 
-DOCKER_COMPOSE_YAML=secondsight-gui.yaml
+DOCKER_COMPOSE_YAML_HTTP=secondsight-gui-http.yaml
+DOCKER_COMPOSE_YAML_HTTPS=secondsight-gui-https.yaml
 PROJECT_NAME=secondsight-gui
 
-while getopts 'hc:x' OPTION
+while getopts 'hc:sC:K:x' OPTION
 do
         case "$OPTION" in
                 h)
@@ -282,6 +323,15 @@ do
                 c)
                         ACTION=$OPTARG
                 ;;
+		s)
+			HTTPS_ENABLED="true"
+		;;
+		C)
+			TLS_CERT_FILENAME=$OPTARG
+		;;
+		K)
+			TLS_KEY_FILENAME=$OPTARG
+		;;
 		x)
 			echo "-> Removing backend persistent data"
 			docker volume rm secondsight-gui_postgres_data
@@ -295,4 +345,9 @@ then
 	usage
 fi
 
-gui_$ACTION
+if [ ! -z "${HTTPS_ENABLED}" ] && ([ -z "${TLS_CERT_FILENAME}" ] || [ -z "${TLS_KEY_FILENAME}" ])
+then
+	usage
+fi
+
+gui_$ACTION $TLS_CERT_FILENAME $TLS_KEY_FILENAME
