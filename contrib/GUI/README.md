@@ -53,6 +53,7 @@ $ sudo ./secondsight-gui.sh -c deploy
 ```
 
 The GUI can be accessed browsing to http://<VM_IP_ADDRESS>
+
 Both username and password are set to `admin`
 
 ### HTTPS mode
@@ -62,6 +63,7 @@ $ sudo ./secondsight-gui.sh -c deploy -s -C mycert.crt -K mycert.key
 ```
 
 The GUI can be accessed browsing to https://<VM_IP_ADDRESS>
+
 Both username and password are set to `admin`
 
 ## Removal from a Linux VM without docker:
@@ -93,6 +95,7 @@ $
 ```
 
 The GUI can be accessed browsing to http://<VM_IP_ADDRESS>
+
 Both username and password are set to `admin`
 
 ### HTTPS mode
@@ -116,6 +119,7 @@ $
 ```
 
 The GUI can be accessed browsing to https://<VM_IP_ADDRESS>
+
 Both username and password are set to `admin`
 
 ## Removal using docker-compose
