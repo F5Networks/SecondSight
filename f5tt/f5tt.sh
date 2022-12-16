@@ -17,6 +17,9 @@
 #export DATAPLANE_FQDN="https://ubuntu.ff.lan"
 #export DATAPLANE_USERNAME="theusername"
 #export DATAPLANE_PASSWORD="thepassword"
+# NMS_AUTH_TYPE can be: basic, digest, jwt. "basic" is the default
+#export NMS_AUTH_TYPE="basic"
+#export NMS_AUTH_TOKEN="JWT_TOKEN_HERE"
 #export NMS_CH_HOST="127.0.0.1"
 #export NMS_CH_PORT="9000"
 #export NMS_CH_USER="default"

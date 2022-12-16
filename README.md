@@ -31,7 +31,8 @@ Communication to NGINX Instance Manager / BIG-IQ is based on REST API, current f
 - REST API and high level reporting - see [usage page](/USAGE.md)
 - JSON Telemetry mode
   - POSTs instance statistics to a user-defined HTTP(S) URL (STATS_PUSH_MODE: CUSTOM)
-  - Basic authentication support
+  - Basic authentication support (BIG-IQ)
+  - Basic, Digest and JWT authentication support (NGINX Instance Manager/NGINX Management Suite)
   - Configurable push interval (in seconds)
 - Grafana visualization mode
   - Pushes instance statistics to pushgateway (STATS_PUSH_MODE: PUSHGATEWAY)
@@ -147,8 +148,11 @@ Edit `1.f5tt.yaml` to customize:
 | NIST_API_KEY| API Key for full NIST NVD CVE tracking (get your key at https://nvd.nist.gov/developers/request-an-api-key) |
 | DATAPLANE_TYPE| can be NGINX_MANAGEMENT_SYSTEM (NIM 2.x) or BIG_IQ |
 | DATAPLANE_FQDN| the FQDN of your NGINX Instance Manager 2.x / BIG-IQ instance| format must be http[s]://FQDN:port |
-| DATAPLANE_USERNAME| the username for authentication |
-| DATAPLANE_PASSWORD| the password for authentication |
+| DATAPLANE_USERNAME| the username for authentication - optional if DATAPLANE_TYPE=NGINX_MANAGEMENT_SYSTEM and NMS_AUTH_TYPE='jwt' |
+| DATAPLANE_PASSWORD| the password for authentication - optional if DATAPLANE_TYPE=NGINX_MANAGEMENT_SYSTEM and NMS_AUTH_TYPE='jwt' |
+| NMS_AUTH_TYPE | if DATAPLANE_TYPE=NGINX_MANAGEMENT_SYSTEM (NGINX Instance Manager 2.1.0+) - The authentication type: basic, digest or jwt. "basic" is the default |
+| NMS_AUTH_TOKEN | if DATAPLANE_TYPE=NGINX_MANAGEMENT_SYSTEM (NGINX Instance Manager 2.1.0+) - Required if NMS_AUTH_TYPE='jwt': the JWT authentication token |
+| NMS_CH_HOST | if DATAPLANE_TYPE=NGINX_MANAGEMENT_SYSTEM (NGINX Instance Manager 2.1.0+) - ClickHouse IP address (optional, default: 127.0.0.1) |
 | NMS_CH_HOST | if DATAPLANE_TYPE=NGINX_MANAGEMENT_SYSTEM (NGINX Instance Manager 2.1.0+) - ClickHouse IP address (optional, default: 127.0.0.1) |
 | NMS_CH_PORT | if DATAPLANE_TYPE=NGINX_MANAGEMENT_SYSTEM (NGINX Instance Manager 2.1.0+) - ClickHouse TCP port (optional, default: 9000) |
 | NMS_CH_USER | if DATAPLANE_TYPE=NGINX_MANAGEMENT_SYSTEM (NGINX Instance Manager 2.1.0+) - ClickHouse username (optional, default: 'default') |

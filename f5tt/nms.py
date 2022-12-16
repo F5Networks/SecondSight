@@ -25,13 +25,17 @@ this.nms_fqdn=''
 this.nms_username=''
 this.nms_password=''
 this.nms_proxy={}
+this.nms_auth_type=''
+this.nms_auth_token=''
 
 # Module initialization
-def init(fqdn,username,password,proxy,nistApiKey,ch_host,ch_port,ch_user,ch_pass,sample_interval):
+def init(fqdn,username,password,auth_type,auth_token,nistApiKey,proxy,ch_host,ch_port,ch_user,ch_pass,sample_interval):
   this.nms_fqdn=fqdn
   this.nms_username=username
   this.nms_password=password
   this.nms_proxy=proxy
+  this.nms_auth_type=auth_type.lower()
+  this.nms_auth_token=auth_token
 
   print('Initializing NMS [',this.nms_fqdn,']')
 
@@ -70,7 +74,17 @@ def pollingThread(sample_interval):
 
 def nmsRESTCall(method,uri):
   s = Session()
-  req = Request(method,this.nms_fqdn+uri,auth=(this.nms_username,this.nms_password))
+  req = ''
+  if this.nms_auth_type == '' or this.nms_auth_type == 'basic':
+    # Basic authentication
+    req = Request(method,this.nms_fqdn+uri,auth=requests.auth.HTTPBasicAuth(this.nms_username,this.nms_password))
+  elif this.nms_auth_type == 'digest':
+    # Digest authentication
+    req = Request(method,this.nms_fqdn+uri,auth=requests.auth.HTTPDigestAuth(this.nms_username,this.nms_password))
+  elif this.nms_auth_type == 'jwt':
+    # JWT-based authentication
+    auth_header = {'Authorization': 'Bearer {}'.format(this.nms_auth_token)}
+    req = Request(method,this.nms_fqdn+uri,headers=auth_header)
 
   p = s.prepare_request(req)
   s.proxies = this.nms_proxy

@@ -30,8 +30,8 @@ app = FastAPI()
 
 nc_mode = os.environ['DATAPLANE_TYPE']
 nc_fqdn = os.environ['DATAPLANE_FQDN']
-nc_user = os.environ['DATAPLANE_USERNAME']
-nc_pass = os.environ['DATAPLANE_PASSWORD']
+nc_user = os.environ['DATAPLANE_USERNAME'] if 'DATAPLANE_USERNAME' in os.environ else ''
+nc_pass = os.environ['DATAPLANE_PASSWORD'] if 'DATAPLANE_PASSWORD' in os.environ else ''
 proxyDict = {}
 
 # Scheduler for automated statistics push / call home
@@ -297,7 +297,10 @@ if __name__ == '__main__':
             ch_user = os.environ['NMS_CH_USER'] if 'NMS_CH_USER' in os.environ else 'default'
             ch_pass = os.environ['NMS_CH_PASS'] if 'NMS_CH_PASS' in os.environ else ''
             ch_sample_interval = int(os.environ['NMS_CH_SAMPLE_INTERVAL']) if 'NMS_CH_SAMPLE_INTERVAL' in os.environ else 1800
-            nms.init(fqdn=nc_fqdn, username=nc_user, password=nc_pass, nistApiKey=nist_apikey, proxy=proxyDict, ch_host=ch_host, ch_port=ch_port, ch_user=ch_user, ch_pass=ch_pass, sample_interval=ch_sample_interval)
+            nms_auth_type = os.environ['NMS_AUTH_TYPE'] if 'NMS_AUTH_TYPE' in os.environ else ''
+            nms_auth_token = os.environ['NMS_AUTH_TOKEN'] if 'NMS_AUTH_TOKEN' in os.environ else ''
+
+            nms.init(fqdn=nc_fqdn, username=nc_user, password=nc_pass, auth_type=nms_auth_type, auth_token=nms_auth_token, nistApiKey=nist_apikey, proxy=proxyDict, ch_host=ch_host, ch_port=ch_port, ch_user=ch_user, ch_pass=ch_pass, sample_interval=ch_sample_interval)
 
         if "STATS_PUSH_ENABLE" in os.environ:
             if os.environ['STATS_PUSH_ENABLE'] == 'true':

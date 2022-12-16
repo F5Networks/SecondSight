@@ -39,28 +39,6 @@ spec:
 
           ### REST API mode
 
-          # Example for NGINX Controller
-
-          #- name: DATAPLANE_TYPE
-          #  value: NGINX_CONTROLLER
-          #- name: DATAPLANE_FQDN
-          #  value: "https://nginx-controller.ff.lan:443"
-          #- name: DATAPLANE_USERNAME
-          #  value: "username@domain"
-          #- name: DATAPLANE_PASSWORD
-          #  value: "thepassword"
-
-          # Example for NGINX Instance Manager 1.x
-
-          #- name: DATAPLANE_TYPE
-          #  value: NGINX_INSTANCE_MANAGER
-          #- name: DATAPLANE_FQDN
-          #  value: "http://nim.ff.lan:11000"
-          #- name: DATAPLANE_USERNAME
-          #  value: "username@domain"
-          #- name: DATAPLANE_PASSWORD
-          #  value: "thepassword"
-
           # Example for NGINX Instance Manager 2.x
 
           #- name: DATAPLANE_TYPE
@@ -71,6 +49,11 @@ spec:
           #  value: "username@domain"
           #- name: DATAPLANE_PASSWORD
           #  value: "thepassword"
+          #- name: NMS_AUTH_TYPE
+          #  # "basic", "digest", "jwt". "basic" is the default
+          #  value: "basic"
+          #- name: NMS_AUTH_TOKEN
+          #  value: "JWT_TOKEN_HERE"
           #- name: NMS_CH_HOST
           #  value: "nim.ff.lan"
           #- name: NMS_CH_PORT
