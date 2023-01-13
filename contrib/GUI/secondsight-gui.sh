@@ -16,6 +16,7 @@ $0 [-h | -c <action> [-s -C cert.pem -K key.pem] | -x]\n\n
 -C [cert.pem]\t\t\t\t\t- HTTPS TLS certificate file in .pem format (mandatory with -s)\n
 -K [key.pem]\t\t\t\t\t- HTTPS TLS certificate file in .pem format (mandatory with -s)\n\n
 === Examples:\n\n
+Deploy HTTP GUI with Docker compose:\t$0 -c start\n
 Deploy HTTPS GUI with Docker compose:\t$0 -c start -s -C certfile.pem -K keyfile.pem\n
 Remove GUI from Docker compose:\t$0 -c stop\n
 Restart and update docker images:\t$0 -c restart\n\n
