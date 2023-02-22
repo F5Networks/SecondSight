@@ -154,7 +154,7 @@ def bigIQGetLicenses():
 
 # Create billing report request
 def bigIQCreateBillingReport(regKey):
-  return bigIQcallRESTURI(method = "POST", uri = "/mgmt/cm/device/tasks/licensing/utility-billing-reports", body = {'regKey': regKey, 'submissionMethod': 'Automatic' } )
+  return bigIQcallRESTURI(method = "POST", uri = "/mgmt/cm/device/tasks/licensing/utility-billing-reports", body = {'regKey': regKey, 'submissionMethod': 'Manual' } )
 
 
 # Get billing report status
