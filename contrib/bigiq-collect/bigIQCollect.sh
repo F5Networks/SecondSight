@@ -258,7 +258,7 @@ do
 
 	# Licensing reports
 	REPORT_STATUS_JSON=`curl -ks -X POST https://127.0.0.1/mgmt/cm/device/tasks/licensing/reports -H 'X-F5-Auth-Token: '$AUTH_TOKEN -H 'Content-Type: application/json' \
-		-d '{"typeOfReport": "Historical","obfuscateDeviceInfo": false,"reportFileFormat": "JSON","regKey": "'$REGKEY'","reportStartDateTime": "'$FIRST_DAY_PREV_MONTH'T00:00:00Z","reportEndDateTime": "'$LAST_DAY_PREV_MONTH'T23:59:59Z"}'`
+		-d '{"submissionMethod": "manual", "typeOfReport": "Historical","obfuscateDeviceInfo": false,"reportFileFormat": "JSON","regKey": "'$REGKEY'","reportStartDateTime": "'$FIRST_DAY_PREV_MONTH'T00:00:00Z","reportEndDateTime": "'$LAST_DAY_PREV_MONTH'T23:59:59Z"}'`
 
 	REPORT_STATUS_ID=`echo $REPORT_STATUS_JSON | jq -r '.selfLink' | awk -F\/ '{print $10}'`
 	echo $REPORT_STATUS_JSON > $OUTPUTDIR/utilitybilling-createreport-$REGKEY.json
