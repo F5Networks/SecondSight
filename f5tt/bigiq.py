@@ -783,12 +783,14 @@ def bigIqTelemetry(mode):
         # Telemetry datapoints
         res,bodyDataPoints = bigIQcallRESTURI(method = "POST", uri = telemetryURI, body = _getTelemetryRequestBodyByTime(module=stat['module'],metricSet=stat['metricSet'],metric=stat['metric'],timeRange=stat['timeRange'],granDuration=stat['granDuration'],granUnit=stat['granUnit'],hostname=telHostname) )
         if res == 200:
-          for dp in bodyDataPoints['result']['result']:
-            datapoint = {}
-            datapoint['ts'] = dp['timeMillis']//1000 if 'timeMillis' in dp else 0
-            datapoint['value'] = dp[stat['metricSet']+'$'+stat['metric']]
+          if 'result' in bodyDataPoints:
+            if 'result' in bodyDataPoints['result']:
+              for dp in bodyDataPoints['result']['result']:
+                datapoint = {}
+                datapoint['ts'] = dp['timeMillis']//1000 if 'timeMillis' in dp else 0
+                datapoint['value'] = dp[stat['metricSet']+'$'+stat['metric']]
 
-            telemetryBody[telHostname][telVarName][telTimeRange]['datapoints'].append(datapoint)
+                telemetryBody[telHostname][telVarName][telTimeRange]['datapoints'].append(datapoint)
 
   if mode == 'PROMETHEUS' or mode == 'PUSHGATEWAY':
     output = '# HELP bigip_tmos_telemetry TMOS Telemetry\n# TYPE bigip_tmos_telemetry gauge\n' if (mode == 'PROMETHEUS') else ''

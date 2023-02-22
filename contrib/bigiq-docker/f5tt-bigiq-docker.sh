@@ -149,16 +149,19 @@ case $MODE in
 		systemctl daemon-reload 2>/dev/null
 		systemctl start docker 2>/dev/null
 
+		ALWAYS_PULL="--pull=always"
+
 		if [ "$LOCAL_MODE" = "yes" ]
 		then
 			echo "-> Decompressing Second Sight docker image"
 			gzip -d $LOCAL_IMAGE.gz >/dev/null 2>/dev/null
 			echo "-> Loading Second Sight docker image"
 			docker load < $LOCAL_IMAGE
+			ALWAYS_PULL=""
 		fi
 
 		echo "-> Starting Second Sight, please stand by..."
-		docker run -d --name f5tt \
+		docker run $ALWAYS_PULL -d --name f5tt \
 		-p 5000:5000 \
 		-e DATAPLANE_TYPE=BIG_IQ \
 		-e DATAPLANE_FQDN="https://$DOCKER_IP" \
