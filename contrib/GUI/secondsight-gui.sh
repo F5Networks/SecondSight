@@ -13,9 +13,9 @@ $0 [-h | -c <action> [-s -C cert.pem -K key.pem -B bundle.pem] | -x]\n\n
 -c [start|stop|restart|deploy|undeploy]\t- Deployment command\n
 -x\t\t\t\t\t\t- Remove backend persistent data\n\n
 -s\t\t\t\t\t\t- Publish the GUI using HTTPS (requires cert and key)\n
--C [cert.pem]\t\t\t\t\t- HTTPS TLS certificate file in .pem format (mandatory with -s)\n
--K [key.pem]\t\t\t\t\t- HTTPS TLS key file in .pem format (mandatory with -s)\n
--B [bundle.pem]\t\t\t\t- HTTPS TLS bundle/chain file in .pem format (mandatory with -s)\n\n
+-C [cert.pem]\t\t\t\t\t- TLS certificate file in .pem format (mandatory with -s)\n
+-K [key.pem]\t\t\t\t\t- TLS key file in .pem format (mandatory with -s)\n
+-B [bundle.pem]\t\t\t\t- TLS bundle/chain file in .pem format (mandatory with -s)\n\n
 === Examples:\n\n
 Deploy HTTPS GUI with Docker compose:\t$0 -c start -s -C certfile.pem -K keyfile.pem -B bundle.pem\n
 Remove GUI from Docker compose:\t$0 -c stop\n

@@ -27,9 +27,9 @@ Second Sight GUI - https://github.com/F5Networks/SecondSight/
  -x                                             - Remove backend persistent data
 
  -s                                             - Publish the GUI using HTTPS (requires cert and key)
- -C [cert.pem]                                  - HTTPS TLS certificate file in .pem format (mandatory with -s)
- -K [key.pem]                                   - HTTPS TLS key file in .pem format (mandatory with -s)
- -B [bundle.pem]                                - HTTPS TLS bundle/chain file in .pem format (mandatory with -s)
+ -C [cert.pem]                                  - TLS certificate file in .pem format (mandatory with -s)
+ -K [key.pem]                                   - TLS key file in .pem format (mandatory with -s)
+ -B [bundle.pem]                                - TLS bundle/chain file in .pem format (mandatory with -s)
 
  === Examples:
 
