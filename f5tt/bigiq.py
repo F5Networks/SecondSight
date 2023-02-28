@@ -83,13 +83,14 @@ this.bigiq_proxy={}
 
 # Module initialization
 def init(fqdn,username,password,proxy,nistApiKey):
+  cveDB.init(nistApiKey=nistApiKey,proxy=proxy)
+
   this.bigiq_fqdn=fqdn
   this.bigiq_username=username
   this.bigiq_password=password
-  this.bigiq_proxy=proxy
 
-  cveDB.init(nistApiKey=nistApiKey,proxy=proxy)
-
+  # HTTP(S) proxy to BIG-IP is used only if BIG-IP is not on 127.0.0.1 - used by Second Sight GUI
+  this.bigiq_proxy=proxy if '127.0.0.1' not in fqdn else { "http":"", "https": "" }
 
 # Thread for scheduled inventory generation
 def scheduledInventory():
@@ -97,7 +98,11 @@ def scheduledInventory():
     # Starts inventory generation task
     # https://clouddocs.f5.com/products/big-iq/mgmt-api/v8.1.0/HowToSamples/bigiq_public_api_wf/t_export_device_inventory.html?highlight=inventory
     print(datetime.datetime.now(),"Requesting BIG-IQ inventory refresh")
-    res,body = bigIQcallRESTURI(method = "POST", uri = "/mgmt/cm/device/tasks/device-inventory", body = {'devicesQueryUri': 'https://localhost/mgmt/shared/resolver/device-groups/cm-bigip-allBigIpDevices/devices'} )
+
+    try:
+      res,body = bigIQcallRESTURI(method = "POST", uri = "/mgmt/cm/device/tasks/device-inventory", body = {'devicesQueryUri': 'https://localhost/mgmt/shared/resolver/device-groups/cm-bigip-allBigIpDevices/devices'} )
+    except:
+      pass
 
     time.sleep(86400)
 

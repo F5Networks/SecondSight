@@ -259,7 +259,7 @@ if __name__ == '__main__':
     if nc_mode != 'NGINX_MANAGEMENT_SYSTEM' and nc_mode != 'BIG_IQ':
         print('Invalid DATAPLANE_TYPE')
     else:
-        # optional HTTP(S) proxy
+        # optional HTTP(S) proxy if configured
         if "HTTP_PROXY" in os.environ:
             http_proxy = os.environ['HTTP_PROXY']
             print('Using HTTP Proxy', http_proxy)

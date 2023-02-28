@@ -143,8 +143,8 @@ Edit `1.f5tt.yaml` to customize:
 | ------------- |-------------|
 | F5TT_ADDRESS | optional IP address Second Sight should listen on. Default is 0.0.0.0 |
 | F5TT_PORT| optional TCP port Second Sight should listen on. Default is 5000 |
-| HTTP_PROXY| to be set if HTTP proxy must be used to connect to NGINX Instance Manager or BIG-IQ |
-| HTTPS_PROXY| to be set if HTTPS proxy must be used to connect to NGINX Instance Manager or BIG-IQ |
+| HTTP_PROXY| to be set if proxy for HTTP traffic must be used to connect to NGINX Instance Manager, BIG-IQ and NIST for CVE retrieval. Format must be http://[username:password@]fqdn:port |
+| HTTPS_PROXY| to be set if proxy for HTTP traffic must be used to connect to NGINX Instance Manager, BIG-IQ and NIST for CVE retrieval. Format must be https://[username:password@]fqdn:port |
 | NIST_API_KEY| API Key for full NIST NVD CVE tracking (get your key at https://nvd.nist.gov/developers/request-an-api-key) |
 | DATAPLANE_TYPE| can be NGINX_MANAGEMENT_SYSTEM (NIM 2.x) or BIG_IQ |
 | DATAPLANE_FQDN| the FQDN of your NGINX Instance Manager 2.x / BIG-IQ instance| format must be http[s]://FQDN:port |
