@@ -18,7 +18,7 @@ Second Sight GUI - https://github.com/F5Networks/SecondSight/
 
  === Usage:
 
- ./secondsight-gui.sh [-h | -c <action> [-s -C cert.pem -K key.pem] | -x]
+ ./secondsight-gui.sh [-h | -c <action> [-s -C cert.pem -K key.pem -B bundle.pem] | -x]
 
  === Options:
 
@@ -28,11 +28,12 @@ Second Sight GUI - https://github.com/F5Networks/SecondSight/
 
  -s                                             - Publish the GUI using HTTPS (requires cert and key)
  -C [cert.pem]                                  - HTTPS TLS certificate file in .pem format (mandatory with -s)
- -K [key.pem]                                   - HTTPS TLS certificate file in .pem format (mandatory with -s)
+ -K [key.pem]                                   - HTTPS TLS key file in .pem format (mandatory with -s)
+ -B [bundle.pem]                                - HTTPS TLS bundle/chain file in .pem format (mandatory with -s)
 
  === Examples:
 
- Deploy HTTPS GUI with Docker compose:  ./secondsight-gui.sh -c start -s -C certfile.pem -K keyfile.pem
+ Deploy HTTPS GUI with Docker compose:  ./secondsight-gui.sh -c start -s -C certfile.pem -K keyfile.pem -B bundle.pem
  Remove GUI from Docker compose:        ./secondsight-gui.sh -c stop
  Restart and update docker images:      ./secondsight-gui.sh -c restart
 
@@ -59,7 +60,7 @@ Both username and password are set to `admin`
 ### HTTPS mode
 
 ```
-$ sudo ./secondsight-gui.sh -c deploy -s -C mycert.crt -K mycert.key
+$ sudo ./secondsight-gui.sh -c deploy -s -C mycert.crt -K mycert.key -B mybundle.key
 ```
 
 The GUI can be accessed browsing to https://<VM_IP_ADDRESS>
@@ -101,7 +102,7 @@ Both username and password are set to `admin`
 ### HTTPS mode
 
 ```
-$ ./secondsight-gui.sh -c start -s -C mycert.crt -K mycert.key
+$ ./secondsight-gui.sh -c start -s -C mycert.crt -K mycert.key -B mybundle.key
 -> Deploying Second Sight GUI
 Pulling postgres        ... done
 Pulling init-db         ... done

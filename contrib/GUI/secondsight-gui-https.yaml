@@ -46,6 +46,11 @@ services:
       - DATAPLANE_FQDN=http://127.0.0.1:5001
       - DATAPLANE_USERNAME="notused"
       - DATAPLANE_PASSWORD="notused"
+
+      ### Optional proxies for HTTP and HTTPS destination URLs
+      #- HTTP_PROXY=http(s)://[username:password@]proxy-fqdn:port
+      #- HTTPS_PROXY=http(s)://[username:password@]proxy-fqdn:port
+
       ### Optional NIST API Key for CVE tracking (https://nvd.nist.gov/developers/request-an-api-key)
       #- NIST_API_KEY=xxxxxxx
 
@@ -73,6 +78,7 @@ services:
     volumes:
       - ./ssl/secondsight.crt:/etc/ssl/secondsight.crt
       - ./ssl/secondsight.key:/etc/ssl/secondsight.key
+      - ./ssl/secondsight.chain:/etc/ssl/secondsight.chain
       - ./nginx/secondsight-gui-https.conf:/etc/nginx/conf.d/secondsight-gui-https.conf
       - /dev/null:/etc/nginx/conf.d/default.conf:ro
     depends_on:

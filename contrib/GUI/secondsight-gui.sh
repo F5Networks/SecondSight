@@ -7,17 +7,17 @@ usage() {
 BANNER="Second Sight GUI - https://github.com/F5Networks/SecondSight/\n\n
 This script is used to deploy/undeploy Second Sight GUI\n\n
 === Usage:\n\n
-$0 [-h | -c <action> [-s -C cert.pem -K key.pem] | -x]\n\n
+$0 [-h | -c <action> [-s -C cert.pem -K key.pem -B bundle.pem] | -x]\n\n
 === Options:\n\n
 -h\t\t\t\t\t\t- This help\n
 -c [start|stop|restart|deploy|undeploy]\t- Deployment command\n
 -x\t\t\t\t\t\t- Remove backend persistent data\n\n
 -s\t\t\t\t\t\t- Publish the GUI using HTTPS (requires cert and key)\n
 -C [cert.pem]\t\t\t\t\t- HTTPS TLS certificate file in .pem format (mandatory with -s)\n
--K [key.pem]\t\t\t\t\t- HTTPS TLS certificate file in .pem format (mandatory with -s)\n\n
+-K [key.pem]\t\t\t\t\t- HTTPS TLS key file in .pem format (mandatory with -s)\n
+-B [bundle.pem]\t\t\t\t- HTTPS TLS bundle/chain file in .pem format (mandatory with -s)\n\n
 === Examples:\n\n
-Deploy HTTP GUI with Docker compose:\t$0 -c start\n
-Deploy HTTPS GUI with Docker compose:\t$0 -c start -s -C certfile.pem -K keyfile.pem\n
+Deploy HTTPS GUI with Docker compose:\t$0 -c start -s -C certfile.pem -K keyfile.pem -B bundle.pem\n
 Remove GUI from Docker compose:\t$0 -c stop\n
 Restart and update docker images:\t$0 -c restart\n\n
 Deploy HTTP GUI on Linux VM:\t\t$0 -c deploy\n
@@ -35,14 +35,16 @@ exit 1
 gui_start() {
 echo "-> Deploying Second Sight GUI with docker-compose"
 
-if [ $# == 2 ]
+if [ $# == 3 ]
 then
 	# Deploying in HTTPS mode
 	YAML_FILE=$DOCKER_COMPOSE_YAML_HTTPS
 	CERT_FILE=$1
 	KEY_FILE=$2
+	BUNDLE_FILE=$3
 	cp $CERT_FILE ssl/secondsight.crt
 	cp $KEY_FILE ssl/secondsight.key
+	cp $BUNDLE_FILE ssl/secondsight.chain
 else
 	# Deploying in HTTP mode
 	YAML_FILE=$DOCKER_COMPOSE_YAML_HTTP
@@ -58,7 +60,7 @@ COMPOSE_HTTP_TIMEOUT=240 docker-compose -p $PROJECT_NAME -f $YAML_FILE up -d --r
 gui_stop() {
 echo "-> Undeploying Second Sight GUI with docker-compose"
 
-if [ $# == 2 ]
+if [ $# == 3 ]
 then
 	# Undeploying in HTTPS mode
 	YAML_FILE=$DOCKER_COMPOSE_YAML_HTTPS
@@ -81,7 +83,7 @@ export PGPASSWORD=admin
 PG_USER=secondsight
 PG_DB=secondsight
 PG_HOST=postgres
-SECONDSIGHT_RELEASE=4.9.5
+SECONDSIGHT_RELEASE=4.9.8
 JARFILE_URL=https://github.com/F5Networks/SecondSight/releases/download/$SECONDSIGHT_RELEASE/secondsight.jar
 
 echo "-> Deploying Second Sight GUI on virtual machine"
@@ -127,14 +129,16 @@ case $distro in
 		systemctl start secondsight
 
 		# NGINX init
-		if [ $# == 2 ]
+		if [ $# == 3 ]
 		then
 			# Deploying in HTTPS mode
 			CERT_FILE=$1
 			KEY_FILE=$2
+			BUNDLE_FILE=$3
 			mkdir -p /etc/ssl
 			cp $CERT_FILE /etc/ssl/secondsight.crt
 			cp $KEY_FILE /etc/ssl/secondsight.key
+			cp $BUNDLE_FILE /etc/ssl/secondsight.chain
 			cp nginx/secondsight-gui-https.conf /etc/nginx/conf.d/
 		else
 			# Deploying in HTTP mode
@@ -315,7 +319,7 @@ DOCKER_COMPOSE_YAML_HTTP=secondsight-gui-http.yaml
 DOCKER_COMPOSE_YAML_HTTPS=secondsight-gui-https.yaml
 PROJECT_NAME=secondsight-gui
 
-while getopts 'hc:sC:K:x' OPTION
+while getopts 'hc:sC:K:B:x' OPTION
 do
         case "$OPTION" in
                 h)
@@ -333,6 +337,9 @@ do
 		K)
 			TLS_KEY_FILENAME=$OPTARG
 		;;
+		B)
+			TLS_BUNDLE_FILENAME=$OPTARG
+		;;
 		x)
 			echo "-> Removing backend persistent data"
 			docker volume rm secondsight-gui_postgres_data
@@ -346,9 +353,9 @@ then
 	usage
 fi
 
-if [ ! -z "${HTTPS_ENABLED}" ] && ([ -z "${TLS_CERT_FILENAME}" ] || [ -z "${TLS_KEY_FILENAME}" ])
+if [ ! -z "${HTTPS_ENABLED}" ] && ([ -z "${TLS_CERT_FILENAME}" ] || [ -z "${TLS_KEY_FILENAME}" ] || [ -z "${TLS_BUNDLE_FILENAME}" ])
 then
 	usage
 fi
 
-gui_$ACTION $TLS_CERT_FILENAME $TLS_KEY_FILENAME
+gui_$ACTION $TLS_CERT_FILENAME $TLS_KEY_FILENAME $TLS_BUNDLE_FILENAME
