@@ -83,7 +83,7 @@ export PGPASSWORD=admin
 PG_USER=secondsight
 PG_DB=secondsight
 PG_HOST=postgres
-SECONDSIGHT_RELEASE=4.9.8
+SECONDSIGHT_RELEASE=4.9.9
 JARFILE_URL=https://github.com/F5Networks/SecondSight/releases/download/$SECONDSIGHT_RELEASE/secondsight.jar
 
 echo "-> Deploying Second Sight GUI on virtual machine"
