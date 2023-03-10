@@ -7,7 +7,7 @@ the .tgz file can then be processed offline by Second Sight to build all target 
 
 `sampledata.tgz` is provided for testing purposes
 
-## Usage - Data collection
+## Script installation
 
 - Copy (scp) `bigIQCollect.sh` from your local host to your BIG-IQ CM instance, under `/tmp/`
 
@@ -28,16 +28,29 @@ Last login: Fri Nov 19 00:00:05 2021 from 192.168.1.18
 [root@bigiq:Active:Standalone] config # /tmp/bigIQCollect.sh 
 Second Sight - https://github.com/F5Networks/SecondSight
 
+ This tool collects usage tracking data from BIG-IQ for offline postprocessing.
+
+ === Usage:
+
  ./bigIQCollect.sh [options]
 
- -h             - This help
- -i             - Interactive mode
- -u [username]  - BIG-IQ username (batch mode)
- -p [password]  - BIG-IQ password (batch mode)
+ === Options:
 
- Interactive mode:      ./bigIQCollect.sh -i
- Batch mode:            ./bigIQCollect.sh -u [username] -p [password]
+ -h                     - This help
+ -i                     - Interactive mode
+ -u [username]          - BIG-IQ username (batch mode)
+ -p [password]          - BIG-IQ password (batch mode)
+ -s [http(s)://address] - Upload data to Second Sight (optional)
+
+ === Examples:
+
+ Interactive mode:              ./bigIQCollect.sh -i
+ Interactive mode + upload:     ./bigIQCollect.sh -i -s https://<SECOND_SIGHT_FQDN_OR_IP>
+ Batch mode:                    ./bigIQCollect.sh -u [username] -p [password]
+ Batch mode:                    ./bigIQCollect.sh -u [username] -p [password] -s https://<SECOND_SIGHT_FQDN_OR_IP>
 ```
+
+## Usage - Data collection with manual upload
 
 - On BIG-IQ CM run the collection script using "admin" as the authentication username and its password
 
@@ -77,6 +90,40 @@ $
 $ scp root@bigiq.f5:/tmp/20220113-0005-bigIQCollect.tgz .
 (root@bigiq.f5) Password: 
 20220113-0005-bigIQCollect.tgz               100%   14KB   5.4MB/s   00:00    
+$ 
+```
+
+## Usage - Data collection with automated upload
+
+- On BIG-IQ CM run the collection script using "admin" as the authentication username and its password, add the `-s` switch to specify Second Sight GUI URL
+
+```
+
+$ ssh root@bigiq.f5
+(root@bigiq.f5) Password: 
+Last login: Fri Mar 10 18:30:03 2023 from 192.168.1.18
+[root@bigiq:Active:Standalone] tmp # ./bigIQCollect.sh -i -s https://secondsight.acme.lan
+Username: admin
+Password: 
+-> Reading device list
+-> Reading system provisioning
+-> Reading device inventory details
+-> Found 68 inventories
+-> Inventories summary
+      1 FINISHED
+-> Using inventory [3a892dde-f61d-412c-a243-42fcd13b8945]
+-> Reading device info for [1346a1f5-49aa-422f-8c4d-19b0119b3927]
+-> Reading device info for [aabcaca7-6986-4d0b-b9fe-b72e3473144e]
+-> Reading device telemetry
+-> Collecting utility billing for regkey [XXXXX-XXXXX-XXXXX-XXXXX-XXXXXXX]
+-> Collecting utility billing for regkey [XXXXX-XXXXX-XXXXX-XXXXX-XXXXXXX]
+-> Data collection completed, building tarfile
+-> Uploading /tmp/20230310-1831-bigIQCollect.tgz to Second Sight at https://secondsight.acme.lan
+{"success":true,"status":"File upload completed","filename":"20230310-1831-bigIQCollect.tgz","content-type":"application/octet-stream","description":"20230310-1831-bigIQCollect.tgz","uid":"23b8fdd3-ee3c-4cf3-89ea-5396ca467915"}
+-> Upload complete
+[root@bigiq:Active:Standalone] config # exit
+logout
+Connection to bigiq.f5 closed.
 $ 
 ```
 
@@ -177,4 +224,3 @@ Compressed output:
 ```
 $ curl -s -H "Accept-Encoding: gzip" http://127.0.0.1:5000/instances --output output-json.gz
 ```
-

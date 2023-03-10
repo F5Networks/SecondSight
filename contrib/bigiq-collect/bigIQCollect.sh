@@ -11,16 +11,19 @@ This tool collects usage tracking data from BIG-IQ for offline postprocessing.\n
 === Usage:\n\n
 $0 [options]\n\n
 === Options:\n\n
--h\t\t- This help\n
--i\t\t- Interactive mode\n
--u [username]\t- BIG-IQ username (batch mode)\n
--p [password]\t- BIG-IQ password (batch mode)\n\n
+-h\t\t\t- This help\n
+-i\t\t\t- Interactive mode\n
+-u [username]\t\t- BIG-IQ username (batch mode)\n
+-p [password]\t\t- BIG-IQ password (batch mode)\n
+-s [http(s)://address]\t- Upload data to Second Sight (optional)\n\n
 === Examples:\n\n
-Interactive mode:\t$0 -i\n
-Batch mode:\t\t$0 -u [username] -p [password]\n
+Interactive mode:\t\t$0 -i\n
+Interactive mode + upload:\t$0 -i -s https://<SECOND_SIGHT_FQDN_OR_IP>\n
+Batch mode:\t\t\t$0 -u [username] -p [password]\n
+Batch mode:\t\t\t$0 -u [username] -p [password] -s https://<SECOND_SIGHT_FQDN_OR_IP>\n
 "
 
-while getopts 'hiu:p:' OPTION
+while getopts 'hiu:p:s:' OPTION
 do
 	case "$OPTION" in
 		h)
@@ -37,6 +40,9 @@ do
 		;;
 		p)
 			BIGIQ_PASSWORD=$OPTARG
+		;;
+		s)
+			UPLOAD_SS=$OPTARG
 		;;
 	esac
 done
@@ -277,8 +283,16 @@ done
 
 
 echo "-> Data collection completed, building tarfile"
-TARFILE=$OUTPUTROOT/`date +"%Y%m%d-%H%M"`-bigIQCollect.tgz
+TARFILEBASENAME=`date +"%Y%m%d-%H%M"`-bigIQCollect.tgz
+TARFILE=$OUTPUTROOT/$TARFILEBASENAME
 tar zcmf $TARFILE $OUTPUTDIR 2>/dev/null
 rm -rf $OUTPUTDIR
 
-echo "-> All done, copy $TARFILE to your local host using scp"
+if [ "$UPLOAD_SS" = "" ]
+then
+	echo "-> All done, copy $TARFILE to your local host using scp"
+else
+	echo "-> Uploading $TARFILE to Second Sight at $UPLOAD_SS"
+	curl -X POST -sk $UPLOAD_SS/api/v1/archive -F "file=@$TARFILE" -F "description=$TARFILEBASENAME"
+	echo "-> Upload complete"
+fi
