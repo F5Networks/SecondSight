@@ -14,13 +14,14 @@ $0 [options]\n\n
 -h\t\t- This help\n
 -i\t\t- Interactive mode\n
 -u [username]\t- BIG-IP username (batch mode)\n
--p [password]\t- BIG-IP password (batch mode)\n\n
+-p [password]\t- BIG-IP password (batch mode)\n
+-s [http(s)://address]\t- Upload data to Second Sight (optional)\n\n
 === Examples:\n\n
 Interactive mode:\t$0 -i\n
 Batch mode:\t\t$0 -u [username] -p [password]\n
 "
 
-while getopts 'hiu:p:' OPTION
+while getopts 'hiu:p:s:' OPTION
 do
 	case "$OPTION" in
 		h)
@@ -38,6 +39,9 @@ do
 		p)
 			BIGIP_PASSWORD=$OPTARG
 		;;
+                s)
+                        UPLOAD_SS=$OPTARG
+                ;;
 	esac
 done
 
@@ -55,28 +59,56 @@ then
 	exit
 fi
 
-OUTPUTROOT=/tmp
-OUTPUTDIR=`mktemp -d`
+RC="restcurl -u $BIGIP_USERNAME:$BIGIP_PASSWORD"
 
 echo "-> Collecting License info"
-restcurl -u $BIGIP_USERNAME:$BIGIP_PASSWORD /mgmt/tm/sys/license > $OUTPUTDIR/1.bigIPLicense.json
+BIGIP_LICENSE=`$RC /mgmt/tm/sys/license`
 
-echo "-> Collecting Software release info"
-restcurl -u $BIGIP_USERNAME:$BIGIP_PASSWORD /mgmt/tm/sys/software/volume > $OUTPUTDIR/2.bigIPsoftware.json
+echo "-> Collecting software details"
+BIGIP_SOFTWARE=`$RC /mgmt/tm/sys/software/volume`
 
-echo "-> Collecting Provisioned modules info"
-restcurl -u $BIGIP_USERNAME:$BIGIP_PASSWORD /mgmt/tm/sys/provision > $OUTPUTDIR/3.bigIPmodules.json
+echo "-> Collecting hardware details"
+BIGIP_HARDWARE=`$RC /mgmt/tm/sys/hardware`
+
+echo "-> Collecting provisioned modules"
+BIGIP_MODULES=`$RC /mgmt/tm/sys/provision`
 
 echo "-> Collecting APM usage"
-restcurl -u $BIGIP_USERNAME:$BIGIP_PASSWORD /mgmt/tm/apm/license > $OUTPUTDIR/4.bigIPAPMUsage.json
+BIGIP_APM=`$RC /mgmt/tm/apm/license`
 
-echo "-> Collecting Hardware info"
-restcurl -u $BIGIP_USERNAME:$BIGIP_PASSWORD /mgmt/tm/sys/hardware > $OUTPUTDIR/5.bigIPhardware.json
+# JSON Header
+REPORT_KIND="Full"
+REPORT_TYPE="Second Sight"
+REPORT_VERSION="4.1"
+REPORT_DATAPLANE="BIG-IP"
+REPORT_TIMESTAMP=`date +"%Y-%m-%d %H:%M:%S.%6N"`
 
+JSON_STRING=$( jq -n \
+                  --arg report_kind "$REPORT_KIND" \
+                  --arg report_type "$REPORT_TYPE" \
+                  --arg report_version "$REPORT_VERSION" \
+                  --arg report_dataplane "$REPORT_DATAPLANE" \
+                  --arg report_timestamp "$REPORT_TIMESTAMP" \
+                  --argjson license "$BIGIP_LICENSE" \
+                  --argjson sw "$BIGIP_SOFTWARE" \
+                  --argjson hw "$BIGIP_HARDWARE" \
+                  --argjson modules "$BIGIP_MODULES" \
+                  --argjson apm "$BIGIP_APM" \
+                  '{report: {kind: $report_kind, type: $report_type, version: $report_version, dataplane: $report_dataplane, timestamp: $report_timestamp}, license: $license, software: $sw, hardware: $hw, modules: $modules, apm: $apm}' )
 
-echo "-> Data collection completed, building tarfile"
-TARFILE=$OUTPUTROOT/`date +"%Y%m%d-%H%M"`-bigIPCollect.tgz
-tar zcmf $TARFILE $OUTPUTDIR 2>/dev/null
-rm -rf $OUTPUTDIR
+echo "-> Data collection completed, building JSON payload"
 
-echo "-> All done, copy $TARFILE to your local host using scp"
+JSONFILEBASENAME=`date +"%Y%m%d-%H%M"`-bigIPCollect.json
+JSONFILE=/tmp/$JSONFILEBASENAME
+echo $JSON_STRING > $JSONFILE
+
+echo "-> All done, copy $JSONFILE to your local host using scp"
+
+if [ "$UPLOAD_SS" = "" ]
+then
+        echo "-> All done, copy $JSONFILE to your local host using scp"
+else
+        echo "-> Uploading $JSONFILE to Second Sight at $UPLOAD_SS"
+        curl -X POST -sk $UPLOAD_SS/api/v1/archive -F "file=@$JSONFILE" -F "description=$JSONFILEBASENAME"
+        echo "-> Upload complete"
+fi
