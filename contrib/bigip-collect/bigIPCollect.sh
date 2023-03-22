@@ -111,6 +111,6 @@ then
         echo "-> All done, copy $JSONFILE to your local host using scp"
 else
         echo "-> Uploading $JSONFILE to Second Sight at $UPLOAD_SS"
-        curl -X POST -sk $UPLOAD_SS/api/v1/archive -F "file=@$JSONFILE" -F "description=$JSONFILEBASENAME"
+        curl -X POST -sk $UPLOAD_SS/api/v1/archive -F "file=@$JSONFILE" -F "description=$JSONFILEBASENAME" -w '\n'
         echo "-> Upload complete"
 fi

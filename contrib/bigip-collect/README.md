@@ -66,7 +66,8 @@ Password:
 -> Collecting APM usage
 -> Data collection completed, building JSON payload
 -> Uploading /tmp/20230322-1154-bigIPCollect.json to Second Sight at http://192.168.1.19:8080
-{"success":true,"status":"File upload completed","filename":"20230322-1154-bigIPCollect.json","content-type":"application/octet-stream","description":"20230322-1154-bigIPCollect.json","uid":"73096b05-995f-43cd-be8d-6fc39100c839"}-> Upload complete
+{"success":true,"status":"File upload completed","filename":"20230322-1154-bigIPCollect.json","content-type":"application/octet-stream","description":"20230322-1154-bigIPCollect.json","uid":"73096b05-995f-43cd-be8d-6fc39100c839"}
+-> Upload complete
 [root@bigip1:Active:Disconnected] tmp #
 ```
 
