@@ -17,8 +17,12 @@ $0 [options]\n\n
 -p [password]\t- BIG-IP password (batch mode)\n
 -s [http(s)://address]\t- Upload data to Second Sight (optional)\n\n
 === Examples:\n\n
-Interactive mode:\t$0 -i\n
-Batch mode:\t\t$0 -u [username] -p [password]\n
+Interactive mode:\n
+\t$0 -i\n
+\t$0 -i -s https://<SECOND SIGHT GUI ADDRESS>\n\n
+Batch mode:\n
+\t$0 -u [username] -p [password]\n
+\t$0 -u [username] -p [password] -s https://<SECOND SIGHT GUI ADDRESS>\n
 "
 
 while getopts 'hiu:p:s:' OPTION
@@ -101,8 +105,6 @@ echo "-> Data collection completed, building JSON payload"
 JSONFILEBASENAME=`date +"%Y%m%d-%H%M"`-bigIPCollect.json
 JSONFILE=/tmp/$JSONFILEBASENAME
 echo $JSON_STRING > $JSONFILE
-
-echo "-> All done, copy $JSONFILE to your local host using scp"
 
 if [ "$UPLOAD_SS" = "" ]
 then
