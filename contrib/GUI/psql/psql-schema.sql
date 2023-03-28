@@ -25,6 +25,35 @@ create table if not exists audit_log (
 	foreign key (tag) references audit_types(id)
 );
 
+create table if not exists bigip_json (
+        id              serial primary key,
+        ts              timestamp with time zone default now(),
+        uid             uuid unique,
+        regkey          varchar(33) not null,
+        content         jsonb not null,
+
+        unique (ts,regkey)
+);
+
+create table if not exists hwplatforms (
+        id              serial primary key,
+        platform        varchar(16) unique,
+        model           varchar(16),
+        sku             varchar(24),
+
+        unique (platform,model,sku)
+);
+
+create table if not exists tmossku (
+        id              serial primary key,
+        module          varchar(16) unique,
+        sku             varchar(24)
+);
+
+--
+-- Views
+--
+
 drop view all_audit_log;
 create view all_audit_log as
 	select audit_log.*,audit_types.description from audit_log, audit_types where audit_log.tag = audit_types.id;

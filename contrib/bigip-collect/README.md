@@ -59,7 +59,9 @@ Second Sight - https://github.com/F5Networks/SecondSight
 [root@bigip1:Active:Disconnected] tmp # ./bigIPCollect.sh -i -s http://192.168.1.19:8080
 Username: admin
 Password: 
--> Collecting License info
+-> Collecting global settings
+-> Collecting management details
+-> Collecting license info
 -> Collecting software details
 -> Collecting hardware details
 -> Collecting provisioned modules
@@ -79,11 +81,13 @@ Password:
 [root@bigip1:Active:Disconnected] tmp # ./bigIPCollect.sh -i
 Username: admin
 Password: 
--> Collecting License info
--> Collecting Software release info
--> Collecting Provisioned modules info
+-> Collecting global settings
+-> Collecting management details
+-> Collecting license info
+-> Collecting software details
+-> Collecting hardware details
+-> Collecting provisioned modules
 -> Collecting APM usage
--> Collecting Hardware info
 -> Data collection completed, building tarfile
 -> All done, copy /tmp/20221122-2351-bigIPCollect.tgz to your local host using scp
 [root@bigip1:Active:Disconnected] tmp #

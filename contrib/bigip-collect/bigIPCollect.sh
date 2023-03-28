@@ -11,10 +11,10 @@ This tool collects usage tracking data from BIG-IP for offline postprocessing.\n
 === Usage:\n\n
 $0 [options]\n\n
 === Options:\n\n
--h\t\t- This help\n
--i\t\t- Interactive mode\n
--u [username]\t- BIG-IP username (batch mode)\n
--p [password]\t- BIG-IP password (batch mode)\n
+-h\t\t\t- This help\n
+-i\t\t\t- Interactive mode\n
+-u [username]\t\t- BIG-IP username (batch mode)\n
+-p [password]\t\t- BIG-IP password (batch mode)\n
 -s [http(s)://address]\t- Upload data to Second Sight (optional)\n\n
 === Examples:\n\n
 Interactive mode:\n
@@ -65,7 +65,13 @@ fi
 
 RC="restcurl -u $BIGIP_USERNAME:$BIGIP_PASSWORD"
 
-echo "-> Collecting License info"
+echo "-> Collecting global settings"
+BIGIP_GLOBAL=`$RC /mgmt/tm/sys/global-settings`
+
+echo "-> Collecting management details"
+BIGIP_MGMT=`$RC /mgmt/tm/sys/management-ip`
+
+echo "-> Collecting license info"
 BIGIP_LICENSE=`$RC /mgmt/tm/sys/license`
 
 echo "-> Collecting software details"
@@ -93,12 +99,28 @@ JSON_STRING=$( jq -n \
                   --arg report_version "$REPORT_VERSION" \
                   --arg report_dataplane "$REPORT_DATAPLANE" \
                   --arg report_timestamp "$REPORT_TIMESTAMP" \
+                  --argjson global "$BIGIP_GLOBAL" \
+                  --argjson mgmt "$BIGIP_MGMT" \
                   --argjson license "$BIGIP_LICENSE" \
                   --argjson sw "$BIGIP_SOFTWARE" \
                   --argjson hw "$BIGIP_HARDWARE" \
                   --argjson modules "$BIGIP_MODULES" \
                   --argjson apm "$BIGIP_APM" \
-                  '{report: {kind: $report_kind, type: $report_type, version: $report_version, dataplane: $report_dataplane, timestamp: $report_timestamp}, license: $license, software: $sw, hardware: $hw, modules: $modules, apm: $apm}' )
+                  '{report: {
+			kind: $report_kind,
+			type: $report_type,
+			version: $report_version,
+			dataplane: $report_dataplane,
+			timestamp: $report_timestamp
+		},
+		global: $global,
+		mgmt: $mgmt,
+		license: $license,
+		software: $sw,
+		hardware: $hw,
+		modules: $modules,
+		apm: $apm}
+		' )
 
 echo "-> Data collection completed, building JSON payload"
 

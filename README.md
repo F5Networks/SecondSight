@@ -1,8 +1,10 @@
 # Second Sight
 
-## Description and features
+Second Sight is a comprehensive tool to track assets for:
 
-Second Sight is a comprehensive tool that helps tracking NGINX OSS and NGINX Plus instances managed by NGINX Instance Manager/NGINX Management Suite and TMOS (BIG-IP, VIPRION, BIG-IP Virtual Edition) instances managed by BIG-IQ.
+- NGINX OSS and NGINX Plus instances managed by NGINX Instance Manager/NGINX Management Suite
+- TMOS (BIG-IP, VIPRION, BIG-IP Virtual Edition) instances managed by BIG-IQ
+- TMOS (BIG-IP, VIPRION, BIG-IP Virtual Edition) without centralized management
 
 Second Sight [web GUI](/contrib/GUI) provides visibility and insights on collected data.
 
@@ -10,7 +12,9 @@ Second Sight [web GUI](/contrib/GUI) provides visibility and insights on collect
 
 <img src="/contrib/GUI/screenshots/6.nginx-analytics.png"/>
 
-Raw data is collected from NGINX Instance Manager/NGINX Management Suite and BIG-IQ to provide visibility and insights on:
+## Description and features
+
+Raw data is collected from NGINX Instance Manager/NGINX Management Suite, BIG-IQ and TMOS instances to provide visibility and insights on:
 
 - Software usage
 - Hardware usage
@@ -19,14 +23,15 @@ Raw data is collected from NGINX Instance Manager/NGINX Management Suite and BIG
 - Telemetry data (CPU, RAM, disk, network throughput, ...)
 - Analytics and drill-down
 - vCMP hosts and guests map (for BIG-IP and VIPRION)
+- NGINX modules (for NGINX OSS and NGINX Plus)
 - Time-based usage reporting (for NGINX OSS, NGINX Plus, NGINX App Protect WAF and NGINX App Protect WAF DoS)
 
-Second Sight has been tested against:
+Second Sight has been tested on:
 
 - NGINX Instance Manager/NGINX Management Suite 2.1.0+
 - BIG-IQ 8.1.0, 8.1.0.2, 8.2.0
 
-Communication to NGINX Instance Manager / BIG-IQ is based on REST API, current features are:
+Communication to NGINX Instance Manager / BIG-IQ / TMOS is based on REST API, current features are:
 
 - REST API and high level reporting - see [usage page](/USAGE.md)
 - JSON Telemetry mode
