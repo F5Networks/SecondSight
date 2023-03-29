@@ -18,4 +18,5 @@ then
 else
 	echo "Second Sight database found: checking and updating schema..."
 	cat psql-schema.sql | psql -U secondsight -h postgres secondsight
+	cat psql-data.sql | psql -U secondsight -h postgres secondsight 2>/dev/null
 fi
