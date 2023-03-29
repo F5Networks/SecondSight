@@ -29,6 +29,6 @@
 <img src="/contrib/GUI/screenshots/10.bigip-list.png"/>
 <img src="/contrib/GUI/screenshots/11.bigip-analytics.png"/>
 
-5. The "Reports" section is used to download reports in JSON, PDF, XLS, PPTX, DOCX and CSV format for TMOS devices and NGINX instances
+6. The "Reports" section is used to download reports in JSON, PDF, XLS, PPTX, DOCX and CSV format for TMOS devices and NGINX instances
 
 <img src="/contrib/GUI/screenshots/9.reporting.png"/>
