@@ -22,7 +22,7 @@ Interactive mode:\n
 \t$0 -i -s https://<SECOND SIGHT GUI ADDRESS>\n\n
 Batch mode:\n
 \t$0 -u [username] -p [password]\n
-\t$0 -u [username] -p [password] -s https://<SECOND SIGHT GUI ADDRESS>\n
+\t$0 -u [username] -p [password] -s http(s)://<SECOND SIGHT GUI ADDRESS>\n
 "
 
 while getopts 'hiu:p:s:' OPTION

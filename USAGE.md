@@ -1,4 +1,4 @@
-# Usage
+# Second Sight Data Collector Usage
 
 ## REST API mode
 
