@@ -77,4 +77,5 @@ insert into tmossku values
 (12,'swg',''),
 (13,'asm','AWF'),
 (14,'afm','AFM'),
-(15,'ilx','');
+(15,'ilx',''),
+(16,'vcmp','');
