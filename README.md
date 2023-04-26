@@ -8,8 +8,8 @@ Main functional modules are:
 - Data collectors
   - [BIG-IQ collector](/contrib/bigiq-collect) - gathers raw data for devices managed by BIG-IQ
   - [BIG-IP collector](/contrib/bigip-collect) - gathers raw data from BIG-IP devices/virtual editions
-  - [NGINX collector](/F5TT.md) - gathers raw data from NGINX Management Suite
-  - [NGINX collector](/contrib/kubernetes) - gathers raw data from NGINX Management Suite
+  - [NGINX collector for Linux](/F5TT.md) - gathers raw data from NGINX Management Suite
+  - [NGINX collector for Kubernetes](/contrib/kubernetes) - gathers raw data from NGINX Management Suite
 
 <img src="/contrib/GUI/screenshots/4.bigiq-swhw.png"/>
 
