@@ -35,13 +35,6 @@ Second Sight has been tested on:
 - BIG-IQ 8.1.0, 8.1.0.2, 8.2.0
 - TMOS 14+
 
-## Reporting and visualization
-
-Sample Grafana dashboards are available:
-
-- [Second Sight GUI](/contrib/GUI)
-- [Grafana dashboards](/contrib/grafana)
-
 ## F5 Support solutions
 
 See F5 Support solutions:
