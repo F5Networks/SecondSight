@@ -62,20 +62,19 @@ insert into hwplatforms values
 (29,'Z100','VE','F5-VE'),
 (30,'Z101','VE-VCMP','F5-VE-VCMP');
 
-insert into tmossku values
-(1,'gtm','DNS'),
-(2,'sslo','SSLO'),
-(3,'apm','APM'),
-(4,'cgnat','CGNAT'),
-(5,'ltm','LTM'),
-(6,'avr','AVR'),
-(7,'fps',''),
-(8,'dos',''),
-(9,'lc',''),
-(10,'pem','PEM'),
-(11,'urldb',''),
-(12,'swg',''),
-(13,'asm','AWF'),
-(14,'afm','AFM'),
-(15,'ilx',''),
-(16,'vcmp','');
+insert into tmossku values (1,'gtm','DNS');
+insert into tmossku values (2,'sslo','SSLO');
+insert into tmossku values (3,'apm','APM');
+insert into tmossku values (4,'cgnat','CGNAT');
+insert into tmossku values (5,'ltm','LTM');
+insert into tmossku values (6,'avr','AVR');
+insert into tmossku values (7,'fps','');
+insert into tmossku values (8,'dos','');
+insert into tmossku values (9,'lc','');
+insert into tmossku values (10,'pem','PEM');
+insert into tmossku values (11,'urldb','');
+insert into tmossku values (12,'swg','');
+insert into tmossku values (13,'asm','AWF');
+insert into tmossku values (14,'afm','AFM');
+insert into tmossku values (15,'ilx','');
+insert into tmossku values (16,'vcmp','');
