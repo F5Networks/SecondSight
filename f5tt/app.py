@@ -23,6 +23,7 @@ from email.message import EmailMessage
 # All modules
 import bigiq
 import nms
+import cveDB
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -244,6 +245,24 @@ def getMetrics():
         reply,code = bigiq.bigIqInventory(mode='PROMETHEUS')
 
     return Response(content=reply,media_type="text/plain")
+
+
+# Post a BIG-IP JSON file, adds CVE information and returns the postprocessed JSON
+# POST body JSON format
+# curl -iX POST localhost:5000/getCVE/TMOS -d '{"tmos": { "version": "16.1.3", "modules": [ "apm", "ltm" ] } }'
+@app.post('/getCVE/TMOS')
+async def getCVE_bigip(request: Request):
+  if request.method == 'POST':
+    allCVE = {}
+    body = json.loads(await request.body())
+
+    if 'tmos' in body:
+      if 'version' in body['tmos']:
+        if 'modules' in body['tmos']:
+          for m in body['tmos']['modules']:
+            allCVE.update(cveDB.getF5(product=m,version=body['tmos']['version']))
+
+    return allCVE
 
 
 @app.get("/{uri}")

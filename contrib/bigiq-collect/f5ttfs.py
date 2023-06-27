@@ -183,6 +183,7 @@ def bigiqLogin():
     "lastUpdateMicros": 1636742559283127
 });
 
+# Upload a BIG-IQ tgz file for postprocessing
 @app.route('/upload', methods = ['POST'])
 def upload_file():
    if request.method == 'POST':

@@ -47,16 +47,6 @@ Refer to [installation instructions](/contrib/docker-compose)
 
 ## As a native python application
 
-Second Sight data collector requires:
-
-- Any Linux distribution
-- Python 3 (tested on 3.9+)
-- [FastAPI](https://fastapi.tiangolo.com/)
-- [Uvicorn](https://www.uvicorn.org/)
-- [Requests](https://docs.python-requests.org/en/master/)
-- [json2html](https://pypi.org/project/json2html/)
-- [clickhouse-driver](https://pypi.org/project/clickhouse-driver/)
-
 Dependencies can be installed using:
 
 ```

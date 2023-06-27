@@ -2,8 +2,7 @@
 
 ## Description
 
-The `bigIPCollect.sh` script must be copied and run on a BIG-IP instance (hardware-based or Virtual Edition). It will collect raw JSON files and package them into a single .tgz file:
-the .tgz file can then be processed offline by Second Sight to build all target JSON files
+The `bigIPCollect.sh` script must be copied and run on a BIG-IP instance (hardware-based or Virtual Edition). It will collect raw data and package them into a JSON file that can be processed offline by Second Sight.
 
 ## Installation on BIG-IP
 
@@ -88,16 +87,16 @@ Password:
 -> Collecting hardware details
 -> Collecting provisioned modules
 -> Collecting APM usage
--> Data collection completed, building tarfile
--> All done, copy /tmp/20221122-2351-bigIPCollect.tgz to your local host using scp
+-> Data collection completed, building JSON payload
+-> All done, copy /tmp/20230626-0002-bigIPCollect.json to your local host using scp
 [root@bigip1:Active:Disconnected] tmp #
 ```
 
-- Retrieve the tgz file
+- Retrieve the JSON file
 
 ```
-$ scp root@bigip.f5:/tmp/20221122-2351-bigIPCollect.tgz .
+$ scp root@bigip.f5:/tmp/20230626-0002-bigIPCollect.json .
 (root@bigip.f5) Password: 
-20221122-2351-bigIPCollect.tgz               100%   14KB   5.4MB/s   00:00    
+20230626-0002-bigIPCollect.json               100%   14KB   5.4MB/s   00:00    
 $ 
 ```
