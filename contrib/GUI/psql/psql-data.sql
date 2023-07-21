@@ -78,3 +78,4 @@ insert into tmossku values (13,'asm','AWF');
 insert into tmossku values (14,'afm','AFM');
 insert into tmossku values (15,'ilx','');
 insert into tmossku values (16,'vcmp','');
+insert into tmossku values (17,'tam','');
