@@ -102,9 +102,9 @@ case $distro in
 		apt -y install $PACKAGES
 
 		# Configuration files
-		mkdir -p /opt/secondsight/contrib
+		mkdir -p /opt/secondsight/contrib /app/etc
 		ln -s /opt/secondsight /app
-		cp etc/secondsight.properties /app/
+		cp etc/secondsight.properties /app/etc/
 
 		# F5tt
 		cp -av ../bigiq-collect /app/contrib/
