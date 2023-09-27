@@ -60,7 +60,7 @@ services:
     container_name: "secondsight-gui"
     restart: always
     volumes:
-      - ./etc/secondsight.properties:/app/secondsight.properties
+      - ./etc:/app/etc
     depends_on:
       init-db:
         condition: service_completed_successfully
