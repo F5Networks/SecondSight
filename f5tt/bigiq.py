@@ -265,7 +265,7 @@ def bigIqInventory(mode):
                 elaPlatformType = ''
 
                 for am in activeModulesArray:
-                  if am.startswith('ELA,'):
+                  if am.startswith('ELA,') or am.startswith('FCP,'):
                     inventoryData['elaPlatform'] = am.split('|')[0]
                     elaPlatformType = am.split('|')[0].split(' ')[1].upper()
 
