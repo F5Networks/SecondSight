@@ -23,6 +23,9 @@ Batch mode:\t\t\t$0 -u [username] -p [password]\n
 Batch mode:\t\t\t$0 -u [username] -p [password] -s https://<SECOND_SIGHT_FQDN_OR_IP>\n
 "
 
+COLOUR_RED='\033[0;31m'
+COLOUR_NONE='\033[0m'
+
 while getopts 'hiu:p:s:' OPTION
 do
 	case "$OPTION" in
@@ -68,7 +71,13 @@ echo "-> Reading device list"
 restcurl -u $BIGIQ_USERNAME:$BIGIQ_PASSWORD /mgmt/shared/resolver/device-groups/cm-bigip-allBigIpDevices/devices > $OUTPUTDIR/1.bigIQCollect.json
 
 echo "-> Reading system provisioning"
-restcurl -u $BIGIQ_USERNAME:$BIGIQ_PASSWORD /mgmt/cm/shared/current-config/sys/provision > $OUTPUTDIR/2.bigIQCollect.json
+#restcurl -u $BIGIQ_USERNAME:$BIGIQ_PASSWORD /mgmt/cm/shared/current-config/sys/provision > $OUTPUTDIR/2.bigIQCollect.json
+curl -m 30 -ks -X GET "https://127.0.0.1/mgmt/cm/shared/current-config/sys/provision" -H 'X-F5-Auth-Token: '$AUTH_TOKEN > $OUTPUTDIR/2.bigIQCollect.json
+if [ $? == 28 ]
+then
+	printf "${COLOUR_RED}Endpoint /mgmt/cm/shared/current-config/sys/provision timed out${COLOUR_NONE}\n"
+	echo '{"exitcode": 28}' > $OUTPUTDIR/2.bigIQCollect.json
+fi
 
 echo "-> Reading device inventory details"
 INVENTORIES=`restcurl -u $BIGIQ_USERNAME:$BIGIQ_PASSWORD /mgmt/cm/device/tasks/device-inventory`
