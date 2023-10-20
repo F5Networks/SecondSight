@@ -72,7 +72,8 @@ restcurl -u $BIGIQ_USERNAME:$BIGIQ_PASSWORD /mgmt/shared/resolver/device-groups/
 
 echo "-> Reading system provisioning"
 #restcurl -u $BIGIQ_USERNAME:$BIGIQ_PASSWORD /mgmt/cm/shared/current-config/sys/provision > $OUTPUTDIR/2.bigIQCollect.json
-curl -m 30 -ks -X GET "https://127.0.0.1/mgmt/cm/shared/current-config/sys/provision" -H 'X-F5-Auth-Token: '$AUTH_TOKEN > $OUTPUTDIR/2.bigIQCollect.json
+AUTH_TOKEN=`curl -ks -X POST 'https://127.0.0.1/mgmt/shared/authn/login' -H 'Content-Type: text/plain' -d '{"username": "'$BIGIQ_USERNAME'","password": "'$BIGIQ_PASSWORD'"}' | jq '.token.token' -r`
+curl -m 30 -ks -X GET "https://127.0.0.1/mgmt/cm/shared/current-config/sys/provision" -H "X-F5-Auth-Token: $AUTH_TOKEN" > $OUTPUTDIR/2.bigIQCollect.json
 if [ $? == 28 ]
 then
 	printf "${COLOUR_RED}Endpoint /mgmt/cm/shared/current-config/sys/provision timed out${COLOUR_NONE}\n"
