@@ -6,6 +6,23 @@
 # bash /tmp/bigIQCollect.sh username password
 #
 
+#
+# https://clouddocs.f5.com/products/big-iq/mgmt-api/v0.0/ApiReferences/bigiq_public_api_ref/r_auth_login.html
+# $1 is the BIG-IQ admin username
+# $2 is the BIG-IQ admin password
+#
+getRefreshToken() {
+	echo `curl -ksX POST 'https://127.0.0.1/mgmt/shared/authn/login' -H 'Content-Type: text/plain' -d '{"username": "'$1'","password": "'$2'"}' | jq '.refreshToken.token' -r`
+}
+
+#
+# https://clouddocs.f5.com/products/big-iq/mgmt-api/v0.0/ApiReferences/bigiq_public_api_ref/r_auth_exchange.html#post-mgmt-shared-authn-exchange
+# $1 is the refresh token to exchange for an access token
+#
+getAuthToken() {
+	echo `curl -ksX POST 'https://127.0.0.1/mgmt/shared/authn/exchange' -H 'Content-Type: text/plain' -d '{"refreshToken": {"token": "'$1'"}}' | jq '.token.token' -r`
+}
+
 BANNER="Second Sight - https://github.com/F5Networks/SecondSight\n\n
 This tool collects usage tracking data from BIG-IQ for offline postprocessing.\n\n
 === Usage:\n\n
@@ -56,24 +73,26 @@ then
 	exit
 fi
 
-AUTH_CHECK=`curl -ks -X POST 'https://127.0.0.1/mgmt/shared/authn/login' -H 'Content-Type: text/plain' -d '{"username": "'$BIGIQ_USERNAME'","password": "'$BIGIQ_PASSWORD'"}' | jq '.username' -r`
+REFRESH_TOKEN=`getRefreshToken $BIGIQ_USERNAME $BIGIQ_PASSWORD`
 
-if [ "$AUTH_CHECK" == "null" ]
+if [ "$REFRESH_TOKEN" == "null" ]
 then
 	echo "Wrong credentials: authentication failed"
 	exit
 fi
 
+echo "-> Authentication successful"
+
 OUTPUTROOT=/tmp
 OUTPUTDIR=`mktemp -d`
 
 echo "-> Reading device list"
-restcurl -u $BIGIQ_USERNAME:$BIGIQ_PASSWORD /mgmt/shared/resolver/device-groups/cm-bigip-allBigIpDevices/devices > $OUTPUTDIR/1.bigIQCollect.json
+AUTH_TOKEN=`getAuthToken $REFRESH_TOKEN`
+curl -ksX GET "https://127.0.0.1/mgmt/shared/resolver/device-groups/cm-bigip-allBigIpDevices/devices" -H "X-F5-Auth-Token: $AUTH_TOKEN" > $OUTPUTDIR/1.bigIQCollect.json
 
 echo "-> Reading system provisioning"
-#restcurl -u $BIGIQ_USERNAME:$BIGIQ_PASSWORD /mgmt/cm/shared/current-config/sys/provision > $OUTPUTDIR/2.bigIQCollect.json
-AUTH_TOKEN=`curl -ks -X POST 'https://127.0.0.1/mgmt/shared/authn/login' -H 'Content-Type: text/plain' -d '{"username": "'$BIGIQ_USERNAME'","password": "'$BIGIQ_PASSWORD'"}' | jq '.token.token' -r`
-curl -m 30 -ks -X GET "https://127.0.0.1/mgmt/cm/shared/current-config/sys/provision" -H "X-F5-Auth-Token: $AUTH_TOKEN" > $OUTPUTDIR/2.bigIQCollect.json
+AUTH_TOKEN=`getAuthToken $REFRESH_TOKEN`
+curl -m 30 -ksX GET "https://127.0.0.1/mgmt/cm/shared/current-config/sys/provision" -H "X-F5-Auth-Token: $AUTH_TOKEN" > $OUTPUTDIR/2.bigIQCollect.json
 if [ $? == 28 ]
 then
 	printf "${COLOUR_RED}Endpoint /mgmt/cm/shared/current-config/sys/provision timed out${COLOUR_NONE}\n"
@@ -81,20 +100,22 @@ then
 fi
 
 echo "-> Reading device inventory details"
-INVENTORIES=`restcurl -u $BIGIQ_USERNAME:$BIGIQ_PASSWORD /mgmt/cm/device/tasks/device-inventory`
+AUTH_TOKEN=`getAuthToken $REFRESH_TOKEN`
+INVENTORIES=`curl -ksX GET "https://127.0.0.1/mgmt/cm/device/tasks/device-inventory" -H "X-F5-Auth-Token: $AUTH_TOKEN"`
 INVENTORIES_LEN=`echo $INVENTORIES | jq '.items|length'`
 
 if [ $INVENTORIES_LEN == 0 ]
 then
   echo "... $INVENTORIES_LEN inventories found: refresh requested"
-  AUTH_TOKEN=`curl -ks -X POST 'https://127.0.0.1/mgmt/shared/authn/login' -H 'Content-Type: text/plain' -d '{"username": "'$BIGIQ_USERNAME'","password": "'$BIGIQ_PASSWORD'"}' | jq '.token.token' -r`
-  curl -ks -X POST 'https://127.0.0.1/mgmt/cm/device/tasks/device-inventory' -H 'X-F5-Auth-Token: '$AUTH_TOKEN -H 'Content-Type: application/json' -d '{"devicesQueryUri": "https://localhost/mgmt/shared/resolver/device-groups/cm-bigip-allBigIpDevices/devices"}' > /dev/null
+  AUTH_TOKEN=`getAuthToken $REFRESH_TOKEN`
+  curl -ksX POST 'https://127.0.0.1/mgmt/cm/device/tasks/device-inventory' -H "X-F5-Auth-Token: $AUTH_TOKEN" -H "Content-Type: application/json" -d '{"devicesQueryUri": "https://localhost/mgmt/shared/resolver/device-groups/cm-bigip-allBigIpDevices/devices"}' > /dev/null
 
   while [ $INVENTORIES_LEN == 0 ]
   do
-    echo "... waiting for inventory refresh, sleeping for 5 seconds"
-    sleep 5
-    INVENTORIES=`restcurl -u $BIGIQ_USERNAME:$BIGIQ_PASSWORD /mgmt/cm/device/tasks/device-inventory`
+    echo "... waiting for inventory refresh, sleeping for 15 seconds"
+    sleep 15
+    AUTH_TOKEN=`getAuthToken $REFRESH_TOKEN`
+    INVENTORIES=`curl -ksX GET "https://127.0.0.1/mgmt/cm/device/tasks/device-inventory" -H "X-F5-Auth-Token: $AUTH_TOKEN"`
     INVENTORIES_LEN=`echo $INVENTORIES | jq '.items|length'`
   done
 fi
@@ -113,14 +134,16 @@ echo "-> Using inventory [$INV_ID]"
 if [ ! "$INV_ID" = "" ]
 then
 
-restcurl -u $BIGIQ_USERNAME:$BIGIQ_PASSWORD /mgmt/cm/device/reports/device-inventory/$INV_ID/results > $OUTPUTDIR/4.bigIQCollect.json
+AUTH_TOKEN=`getAuthToken $REFRESH_TOKEN`
+curl -ksX GET "https://127.0.0.1/mgmt/cm/device/reports/device-inventory/$INV_ID/results" -H "X-F5-Auth-Token: $AUTH_TOKEN" > $OUTPUTDIR/4.bigIQCollect.json
 
 MACHINE_IDS=`cat $OUTPUTDIR/4.bigIQCollect.json | jq -r '.items[].infoState.machineId'`
 
 for M in $MACHINE_IDS
 do
 	echo "-> Reading device info for [$M]"
-	restcurl -u $BIGIQ_USERNAME:$BIGIQ_PASSWORD /mgmt/cm/system/machineid-resolver/$M > $OUTPUTDIR/machineid-resolver-$M.json
+	AUTH_TOKEN=`getAuthToken $REFRESH_TOKEN`
+	curl -ksX GET "https://127.0.0.1/mgmt/cm/system/machineid-resolver/$M" -H "X-F5-Auth-Token: $AUTH_TOKEN" > $OUTPUTDIR/machineid-resolver-$M.json
 done
 
 echo "-> Reading device telemetry"
@@ -152,8 +175,7 @@ bigip-traffic-summary|server-bytes-out|avg-value-per-sec|-30D|12|HOURS
 "
 
 ALL_HOSTNAMES=""
-
-AUTH_TOKEN=`curl -ks -X POST 'https://127.0.0.1/mgmt/shared/authn/login' -H 'Content-Type: text/plain' -d '{"username": "'$BIGIQ_USERNAME'","password": "'$BIGIQ_PASSWORD'"}' | jq '.token.token' -r`
+AUTH_TOKEN=`getAuthToken $REFRESH_TOKEN`
 
 for T in $ALL_TELEMETRY
 do
@@ -187,7 +209,7 @@ do
     "limit": 1000
 }'
 
-	TELEMETRY_OUTPUT=`curl -ks -X POST https://127.0.0.1/mgmt/ap/query/v1/tenants/default/products/device/metric-query -H 'X-F5-Auth-Token: '$AUTH_TOKEN -H 'Content-Type: application/json' -d "$TELEMETRY_JSON"`
+	TELEMETRY_OUTPUT=`curl -ksX POST https://127.0.0.1/mgmt/ap/query/v1/tenants/default/products/device/metric-query -H "X-F5-Auth-Token: $AUTH_TOKEN" -H "Content-Type: application/json" -d "$TELEMETRY_JSON"`
         OUTFILE=$OUTPUTDIR/telemetry-$T_MODULE-$T_METRICSET-$T_TIMERANGE.json
 
 	echo $TELEMETRY_OUTPUT > $OUTFILE
@@ -200,7 +222,7 @@ done
 
 ## Datapoints telemetry
 
-AUTH_TOKEN=`curl -ks -X POST 'https://127.0.0.1/mgmt/shared/authn/login' -H 'Content-Type: text/plain' -d '{"username": "'$BIGIQ_USERNAME'","password": "'$BIGIQ_PASSWORD'"}' | jq '.token.token' -r`
+AUTH_TOKEN=`getAuthToken $REFRESH_TOKEN`
 
 for TDP_HOSTNAME in $ALL_HOSTNAMES
 do
@@ -244,7 +266,7 @@ do
     "limit": 1000
 }'
 
-	TELEMETRY_DP_OUTPUT=`curl -ks -X POST https://127.0.0.1/mgmt/ap/query/v1/tenants/default/products/device/metric-query -H 'X-F5-Auth-Token: '$AUTH_TOKEN -H 'Content-Type: application/json' -d "$TELEMETRY_DP_JSON"`
+	TELEMETRY_DP_OUTPUT=`curl -ksX POST https://127.0.0.1/mgmt/ap/query/v1/tenants/default/products/device/metric-query -H "X-F5-Auth-Token: $AUTH_TOKEN" -H "Content-Type: application/json" -d "$TELEMETRY_DP_JSON"`
         OUTFILE=$OUTPUTDIR/telemetry-datapoints-$TDP_HOSTNAME-$TDP_MODULE-$TDP_METRICSET-$TDP_TIMERANGE.json
 
 	echo $TELEMETRY_DP_OUTPUT > $OUTFILE
@@ -258,9 +280,9 @@ fi
 
 ### Utility billing collection
 
-AUTH_TOKEN=`curl -ks -X POST 'https://127.0.0.1/mgmt/shared/authn/login' -H 'Content-Type: text/plain' -d '{"username": "'$BIGIQ_USERNAME'","password": "'$BIGIQ_PASSWORD'"}' | jq '.token.token' -r`
+AUTH_TOKEN=`getAuthToken $REFRESH_TOKEN`
 
-UTB_ALLLICENSES=`curl -ks -X GET "https://127.0.0.1/mgmt/cm/device/licensing/pool/utility/licenses?$select=regKey,status" -H 'X-F5-Auth-Token: '$AUTH_TOKEN`
+UTB_ALLLICENSES=`curl -ks -X GET "https://127.0.0.1/mgmt/cm/device/licensing/pool/utility/licenses?$select=regKey,status" -H "X-F5-Auth-Token: $AUTH_TOKEN"`
 echo $UTB_ALLLICENSES > $OUTPUTDIR/utilitybilling-licenses.json
 
 UTB_ALLREGKEYS=`echo $UTB_ALLLICENSES | jq -r '.items[]|.regKey'`
@@ -273,7 +295,7 @@ do
 	echo "-> Collecting utility billing for regkey [$REGKEY]"
 
 	# Licensing reports
-	REPORT_STATUS_JSON=`curl -ks -X POST https://127.0.0.1/mgmt/cm/device/tasks/licensing/reports -H 'X-F5-Auth-Token: '$AUTH_TOKEN -H 'Content-Type: application/json' \
+	REPORT_STATUS_JSON=`curl -ksX POST https://127.0.0.1/mgmt/cm/device/tasks/licensing/reports -H "X-F5-Auth-Token: $AUTH_TOKEN" -H "Content-Type: application/json" \
 		-d '{"submissionMethod": "manual", "typeOfReport": "Historical","obfuscateDeviceInfo": false,"reportFileFormat": "JSON","regKey": "'$REGKEY'","reportStartDateTime": "'$FIRST_DAY_PREV_MONTH'T00:00:00Z","reportEndDateTime": "'$LAST_DAY_PREV_MONTH'T23:59:59Z"}'`
 
 	REPORT_STATUS_ID=`echo $REPORT_STATUS_JSON | jq -r '.selfLink' | awk -F\/ '{print $10}'`
@@ -281,11 +303,11 @@ do
 
 	sleep 4
 
-	REPORT_DOWNLOAD_JSON=`curl -ks -X GET https://127.0.0.1/mgmt/cm/device/tasks/licensing/reports/$REPORT_STATUS_ID -H 'X-F5-Auth-Token: '$AUTH_TOKEN`
+	REPORT_DOWNLOAD_JSON=`curl -ksX GET https://127.0.0.1/mgmt/cm/device/tasks/licensing/reports/$REPORT_STATUS_ID -H "X-F5-Auth-Token: $AUTH_TOKEN"`
 	REPORT_DOWNLOAD_FILE=`echo $REPORT_DOWNLOAD_JSON | jq -r '.reportUri' | awk -F\/ '{print $9}'`
 	echo $REPORT_DOWNLOAD_JSON > $OUTPUTDIR/utilitybilling-reportstatus-$REPORT_STATUS_ID.json
 
-	REPORT_JSON=`curl -ks -X GET https://127.0.0.1/mgmt/cm/device/licensing/license-reports-download/$REPORT_DOWNLOAD_FILE -H 'X-F5-Auth-Token: '$AUTH_TOKEN`
+	REPORT_JSON=`curl -ksX GET https://127.0.0.1/mgmt/cm/device/licensing/license-reports-download/$REPORT_DOWNLOAD_FILE -H "X-F5-Auth-Token: $AUTH_TOKEN"`
 	echo $REPORT_JSON > $OUTPUTDIR/utilitybilling-billingreport-$REPORT_DOWNLOAD_FILE
 done
 

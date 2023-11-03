@@ -61,6 +61,7 @@ Last login: Fri Nov 19 00:00:05 2021 from 192.168.1.18
 [root@bigiq:Active:Standalone] config # . /tmp/bigIQCollect.sh -i
 Username: admin
 Password: 
+-> Authentication successful
 -> Reading device list
 -> Reading system provisioning
 -> Reading device inventory details
