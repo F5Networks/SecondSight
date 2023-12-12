@@ -8,8 +8,8 @@ Main functional modules are:
 - Data collectors
   - [BIG-IQ collector](/contrib/bigiq-collect) - gathers raw data for devices managed by BIG-IQ
   - [BIG-IP collector](/contrib/bigip-collect) - gathers raw data from BIG-IP devices/virtual editions
-  - [NGINX collector for Linux](/F5TT.md) - gathers raw data from NGINX Management Suite
-  - [NGINX collector for Kubernetes](/contrib/kubernetes) - gathers raw data from NGINX Management Suite
+  - [NGINX collector for Linux](/F5TT.md) - gathers raw data from NGINX Instance Manager
+  - [NGINX collector for Kubernetes](/contrib/kubernetes) - gathers raw data from NGINX Instance Manager
 
 <img src="/contrib/GUI/screenshots/4.bigiq-swhw.png"/>
 
@@ -17,7 +17,7 @@ Main functional modules are:
 
 ## Description and features
 
-Raw data is collected from NGINX Instance Manager/NGINX Management Suite, BIG-IQ and TMOS instances to provide visibility and insights on:
+Raw data is collected from NGINX Instance Manager, BIG-IQ and TMOS instances to provide visibility and insights on:
 
 - Software usage
 - Hardware usage
@@ -31,8 +31,8 @@ Raw data is collected from NGINX Instance Manager/NGINX Management Suite, BIG-IQ
 
 Second Sight has been tested on:
 
-- NGINX Instance Manager/NGINX Management Suite 2.1.0+
-- BIG-IQ 8.1.0, 8.1.0.2, 8.2.0
+- NGINX Instance Manager 2.1.0+
+- BIG-IQ 8.1.0, 8.1.0.2, 8.2.0, 8.3.0
 - TMOS 14+
 
 ## F5 Support solutions

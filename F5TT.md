@@ -1,6 +1,6 @@
 # Second Sight Data Collector (F5TT)
 
-Second Sight Data Collector is a tool that can be run to collect raw data on hardware and software assets by querying BIG-IQ and NGINX Management Suite
+Second Sight Data Collector is a tool that can be run to collect raw data on hardware and software assets by querying BIG-IQ and NGINX Instance Manager
 
 ## Features
 
@@ -10,7 +10,7 @@ Communication to NGINX Instance Manager / BIG-IQ / TMOS is based on REST API, cu
 - JSON Telemetry mode
   - POSTs instance statistics to a user-defined HTTP(S) URL (STATS_PUSH_MODE: CUSTOM)
   - Basic authentication support (BIG-IQ)
-  - Basic, Digest and JWT authentication support (NGINX Instance Manager/NGINX Management Suite)
+  - Basic, Digest and JWT authentication support (NGINX Instance Manager)
   - Configurable push interval (in seconds)
 - Grafana visualization mode
   - Pushes instance statistics to pushgateway (STATS_PUSH_MODE: PUSHGATEWAY)

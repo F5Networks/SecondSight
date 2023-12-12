@@ -8,7 +8,7 @@
   - [BIG-IQ offline collection tgz files](https://github.com/F5Networks/SecondSight/tree/main/contrib/bigiq-collect)
   - [BIG-IQ "full" JSON files, /instances endpoint](https://github.com/F5Networks/SecondSight/blob/main/USAGE.md#big-iq)
   - [BIG-IP offline collection JSON files](https://github.com/F5Networks/SecondSight/tree/main/contrib/bigip-collect)
-  - [NGINX Management Suite "full" JSON files, /instances endpoint](https://github.com/F5Networks/SecondSight/blob/main/USAGE.md#nginx-instance-manager-2x)
+  - [NGINX Instance Manager "full" JSON files, /instances endpoint](https://github.com/F5Networks/SecondSight/blob/main/USAGE.md#nginx-instance-manager-2x)
 
 <img src="/contrib/GUI/screenshots/2.upload.png"/>
 
