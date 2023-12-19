@@ -171,8 +171,10 @@ create view all_contracts as
         select edw_customers.id as end_customer_id,edw_customers.end_customer_name,
                 edw_contracts.id as edw_contracts_id,legal_contract,start_date,end_date,
                 edw_salesorders.id as edw_salesorders_id,sales_order
-        from edw_customers,edw_contracts,edw_salesorders
-        where edw_salesorders.legal_contract_id = edw_contracts.id and edw_contracts.end_customer = edw_customers.id;
+        from edw_customers,edw_contracts,edw_salesorders,archive_to_contract
+        where edw_salesorders.legal_contract_id = edw_contracts.id
+                and edw_contracts.end_customer = edw_customers.id 
+                and archive_to_contract.contract_id = edw_contracts.id;
 
 create view all_keys as
 select
