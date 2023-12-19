@@ -111,6 +111,7 @@ create view all_json_reports as
 	where json_reports.typeid = json_types.id;
 
 drop view all_contracts;
+drop view all_keys;
 
 create table if not exists edw_customers (
         id                              serial unique,
@@ -172,6 +173,47 @@ create view all_contracts as
                 edw_salesorders.id as edw_salesorders_id,sales_order
         from edw_customers,edw_contracts,edw_salesorders
         where edw_salesorders.legal_contract_id = edw_contracts.id and edw_contracts.end_customer = edw_customers.id;
+
+create view all_keys as
+select
+    edw_customers.id as edw_customers_id,
+    edw_customers.end_customer_name,
+    edw_contracts.id as edw_contracts_id,
+    edw_contracts.legal_contract,
+    edw_contracts.start_date as legal_contract_start_date,
+    edw_contracts.end_date as legal_contract_end_date,
+    edw_salesorders.id as edw_salesorders_id,
+    edw_salesorders.sales_order,
+    edw_regkeys.id as edw_regkeys_id,
+    edw_regkeys.regkey,
+    edw_regkeys.serial_number,
+    edw_pool_reg_keys.id as edw_pool_reg_keys_id,
+    edw_pool_reg_keys.pool_reg_key,
+    edw_ve_hostnames.id as edw_ve_hostnames_id,
+    edw_ve_hostnames.hostname,
+    edw_ve_hostnames.machineid
+from
+    edw_customers
+full join
+    edw_contracts
+on
+    edw_contracts.end_customer = edw_customers.id
+    full join
+        edw_salesorders
+    on
+        edw_salesorders.legal_contract_id = edw_contracts.id
+        full join
+            edw_regkeys
+        on
+            edw_regkeys.sales_order_id=edw_salesorders.id
+            full join
+                edw_pool_reg_keys
+            on
+                edw_pool_reg_keys.sales_order_id=edw_salesorders.id
+                full join
+                    edw_ve_hostnames
+                on
+                    edw_ve_hostnames.pool_reg_key=edw_pool_reg_keys.id;
 
 drop view edw_ve_data;
 create view edw_ve_data as
