@@ -110,6 +110,8 @@ create view all_json_reports as
 	from json_reports, json_types
 	where json_reports.typeid = json_types.id;
 
+drop view all_contracts;
+
 create table if not exists edw_customers (
         id                              serial unique,
         end_customer_name               varchar(256) primary key unique
@@ -122,7 +124,7 @@ create table if not exists edw_contracts (
         end_date                        varchar(64),
         end_customer                    integer,
 
-        primary key (legal_contract),
+        primary key (legal_contract,end_customer),
         foreign key (end_customer) references edw_customers(id)
 );
 
@@ -163,6 +165,13 @@ create table if not exists edw_ve_hostnames (
         primary key (hostname,machineid,pool_reg_key),
         foreign key (pool_reg_key) references edw_pool_reg_keys(id)
 );
+
+create view all_contracts as
+        select edw_customers.id as end_customer_id,edw_customers.end_customer_name,
+                edw_contracts.id as edw_contracts_id,legal_contract,start_date,end_date,
+                edw_salesorders.id as edw_salesorders_id,sales_order
+        from edw_customers,edw_contracts,edw_salesorders
+        where edw_salesorders.legal_contract_id = edw_contracts.id and edw_contracts.end_customer = edw_customers.id;
 
 drop view edw_ve_data;
 create view edw_ve_data as
