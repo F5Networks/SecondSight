@@ -170,7 +170,9 @@ create table if not exists edw_ve_hostnames (
 create view all_contracts as
         select edw_customers.id as end_customer_id,edw_customers.end_customer_name,
                 edw_contracts.id as edw_contracts_id,legal_contract,start_date,end_date,
-                edw_salesorders.id as edw_salesorders_id,sales_order
+                edw_salesorders.id as edw_salesorders_id,sales_order, 
+                archive_to_contract.id as archive_to_contract_id,
+                archive_to_contract.archive_uid
         from edw_customers,edw_contracts,edw_salesorders,archive_to_contract
         where edw_salesorders.legal_contract_id = edw_contracts.id
                 and edw_contracts.end_customer = edw_customers.id 
