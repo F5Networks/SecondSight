@@ -265,9 +265,11 @@ def bigIqInventory(mode):
                 elaPlatformType = ''
 
                 for am in activeModulesArray:
-                  if am.startswith('ELA,') or am.startswith('FCP,'):
+                  if am.startswith(('ELA,','FCP,','Good Bundle','Better Bundle','Best Bundle')):
                     inventoryData['elaPlatform'] = am.split('|')[0]
-                    elaPlatformType = am.split('|')[0].split(' ')[1].upper()
+                    elaPlatformType = am.split('|')[0].split(' ')[-1].upper()
+                    if elaPlatformType.lower() == 'Platforms'.lower():
+                      elaPlatformType = am.split('|')[0].split(' ')[-2].upper()
 
                 if 'chassisSerialNumber' in invDevice['infoState']:
                   inventoryData['chassisSerialNumber'] = invDevice['infoState']['chassisSerialNumber'].strip()
