@@ -4,7 +4,6 @@ Additional tools that can be used with Second Sight
 
 - [BIG-IQ Collector](/contrib/bigiq-collect) - Offline BIG-IQ inventory processing
 - [BIG-IP Collector](/contrib/bigip-collect) - Offline BIG-IP data collector
-- [Second Sight on BIG-IQ Docker](/contrib/bigiq-docker) - Run Second Sight onboard BIG-IQ CM virtual machine
 - [Docker Compose](/contrib/docker-compose) - Run Second Sight on docker on a Linux virtual machine
 - [Grafana](/contrib/grafana) - Sample Grafana dashboard
 - [Kubernetes](/contrib/kubernetes) - Run Second Sight on kubernetes to track NGINX usage based on NGINX Instance Manager
