@@ -11,10 +11,6 @@ Main functional modules are:
   - [NGINX collector for Linux](/F5TT.md) - gathers raw data from NGINX Instance Manager
   - [NGINX collector for Kubernetes](/contrib/kubernetes) - gathers raw data from NGINX Instance Manager
 
-<img src="/contrib/GUI/screenshots/4.bigiq-swhw.png"/>
-
-<img src="/contrib/GUI/screenshots/6.nginx-analytics.png"/>
-
 ## Description and features
 
 Raw data is collected from NGINX Instance Manager, BIG-IQ and TMOS instances to provide visibility and insights on:

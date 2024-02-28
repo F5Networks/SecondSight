@@ -1,0 +1,24 @@
+# Any private crt and keys #
+############################
+*.crt
+*.key
+*~
+\#*
+
+# OS Specific #
+###############
+Thumbs.db
+.DS_Store
+.vscode
+
+# Logs #
+########
+*.log
+
+# Additional dirs #
+###################
+/.idea/
+/venv/
+/f5tt/__pycache__/
+/contrib/gateway/__pycache__/
+/contrib/bigiq-collect/__pycache__/
