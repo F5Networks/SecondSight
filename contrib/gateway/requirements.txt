@@ -2,3 +2,5 @@ typing
 uvicorn
 fastapi
 uuid
+python-multipart
+requests
