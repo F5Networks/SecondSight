@@ -86,6 +86,12 @@ echo "-> Authentication successful"
 OUTPUTROOT=/tmp
 OUTPUTDIR=`mktemp -d`
 
+#
+# Debug output
+#
+DEBUGFILE=$OUTPUTDIR/bigIQCollect.out
+exec &> >(tee -a $DEBUGFILE)
+
 echo "-> Reading device list"
 AUTH_TOKEN=`getAuthToken $REFRESH_TOKEN`
 curl -ksX GET "https://127.0.0.1/mgmt/shared/resolver/device-groups/cm-bigip-allBigIpDevices/devices" -H "X-F5-Auth-Token: $AUTH_TOKEN" > $OUTPUTDIR/1.bigIQCollect.json
