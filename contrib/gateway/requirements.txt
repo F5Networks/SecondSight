@@ -2,5 +2,6 @@ typing
 uvicorn
 fastapi
 uuid
-python-multipart
-requests
+paho-mqtt
+toml
+datetime
