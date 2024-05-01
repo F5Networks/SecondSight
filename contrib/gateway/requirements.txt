@@ -1,7 +1,8 @@
 typing
 uvicorn
 fastapi
-uuid
 paho-mqtt
 toml
 datetime
+python-multipart
+requests
