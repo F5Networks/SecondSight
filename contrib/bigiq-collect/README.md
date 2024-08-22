@@ -26,7 +26,7 @@ $ ssh root@bigiq.f5
 Last login: Fri Nov 19 00:00:05 2021 from 192.168.1.18
 [root@bigiq:Active:Standalone] config # chmod +x /tmp/bigIQCollect.sh 
 [root@bigiq:Active:Standalone] config # /tmp/bigIQCollect.sh 
-Second Sight - https://github.com/F5Networks/SecondSight
+FCP Usage Script - 20240821 - https://github.com/F5Networks/SecondSight
 
  This tool collects usage tracking data from BIG-IQ for offline postprocessing.
 
@@ -37,6 +37,7 @@ Second Sight - https://github.com/F5Networks/SecondSight
  === Options:
 
  -h                     - This help
+ -v                     - Show version
  -i                     - Interactive mode
  -u [username]          - BIG-IQ username (batch mode)
  -p [password]          - BIG-IQ password (batch mode)

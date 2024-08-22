@@ -23,12 +23,14 @@ getAuthToken() {
 	echo `curl -ksX POST 'https://127.0.0.1/mgmt/shared/authn/exchange' -H 'Content-Type: text/plain' -d '{"refreshToken": {"token": "'$1'"}}' | jq '.token.token' -r`
 }
 
-BANNER="Second Sight - https://github.com/F5Networks/SecondSight\n\n
+VERSION="FCP Usage Script - 20240821"
+BANNER="$VERSION - https://github.com/F5Networks/SecondSight\n\n
 This tool collects usage tracking data from BIG-IQ for offline postprocessing.\n\n
 === Usage:\n\n
 $0 [options]\n\n
 === Options:\n\n
 -h\t\t\t- This help\n
+-v\t\t\t- Show version\n
 -i\t\t\t- Interactive mode\n
 -u [username]\t\t- BIG-IQ username (batch mode)\n
 -p [password]\t\t- BIG-IQ password (batch mode)\n
@@ -40,12 +42,10 @@ Batch mode:\t\t\t$0 -u [username] -p [password]\n
 Batch mode:\t\t\t$0 -u [username] -p [password] -s https://<SECOND_SIGHT_FQDN_OR_IP>\n
 "
 
-VERSION="Second Sight BIG-IQ collector - 20240821"
-
 COLOUR_RED='\033[0;31m'
 COLOUR_NONE='\033[0m'
 
-while getopts 'hiu:p:s:' OPTION
+while getopts 'hviu:p:s:' OPTION
 do
 	case "$OPTION" in
 		h)
@@ -65,6 +65,10 @@ do
 		;;
 		s)
 			UPLOAD_SS=$OPTARG
+		;;
+		v)
+			echo $VERSION
+			exit
 		;;
 	esac
 done
