@@ -2,14 +2,12 @@
 
 Second Sight is a comprehensive tool to track assets for NGINX Opensource, NGINX Plus and TMOS devices.
 
-Main functional modules are:
+Available data collectors are:
 
-- [Web GUI](/contrib/GUI) - provides visibility and insights on collected data
-- Data collectors
-  - [BIG-IQ collector](/contrib/bigiq-collect) - gathers raw data for devices managed by BIG-IQ
-  - [BIG-IP collector](/contrib/bigip-collect) - gathers raw data from BIG-IP devices/virtual editions
-  - [NGINX collector for Linux](/F5TT.md) - gathers raw data from NGINX Instance Manager
-  - [NGINX collector for Kubernetes](/contrib/kubernetes) - gathers raw data from NGINX Instance Manager
+- [BIG-IQ collector](/contrib/bigiq-collect) - gathers raw data for devices managed by BIG-IQ
+- [BIG-IP collector](/contrib/bigip-collect) - gathers raw data from BIG-IP devices/virtual editions
+- [NGINX collector for Linux](/F5TT.md) - gathers raw data from NGINX Instance Manager
+- [NGINX collector for Kubernetes](/contrib/kubernetes) - gathers raw data from NGINX Instance Manager
 
 ## Description and features
 
