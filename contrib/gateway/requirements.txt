@@ -1,8 +1,0 @@
-typing
-uvicorn
-fastapi
-paho-mqtt
-toml
-datetime
-python-multipart
-requests

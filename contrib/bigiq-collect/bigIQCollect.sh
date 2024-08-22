@@ -40,6 +40,8 @@ Batch mode:\t\t\t$0 -u [username] -p [password]\n
 Batch mode:\t\t\t$0 -u [username] -p [password] -s https://<SECOND_SIGHT_FQDN_OR_IP>\n
 "
 
+VERSION="Second Sight BIG-IQ collector - 20240821"
+
 COLOUR_RED='\033[0;31m'
 COLOUR_NONE='\033[0m'
 
@@ -73,6 +75,8 @@ then
 	exit
 fi
 
+echo $VERSION
+
 REFRESH_TOKEN=`getRefreshToken $BIGIQ_USERNAME $BIGIQ_PASSWORD`
 
 if [ "$REFRESH_TOKEN" == "null" ]
@@ -81,10 +85,22 @@ then
 	exit
 fi
 
+if [ "$REFRESH_TOKEN" == "" ]
+then
+	echo "BIG-IQ REST API connection refused"
+	exit
+fi
+
 echo "-> Authentication successful"
 
 OUTPUTROOT=/tmp
 OUTPUTDIR=`mktemp -d`
+
+#
+# Debug output
+#
+DEBUGFILE=$OUTPUTDIR/bigIQCollect.out
+exec &> >(tee -a $DEBUGFILE)
 
 echo "-> Reading device list"
 AUTH_TOKEN=`getAuthToken $REFRESH_TOKEN`
@@ -95,9 +111,17 @@ AUTH_TOKEN=`getAuthToken $REFRESH_TOKEN`
 curl -m 30 -ksX GET "https://127.0.0.1/mgmt/cm/shared/current-config/sys/provision" -H "X-F5-Auth-Token: $AUTH_TOKEN" > $OUTPUTDIR/2.bigIQCollect.json
 if [ $? == 28 ]
 then
-	printf "${COLOUR_RED}Endpoint /mgmt/cm/shared/current-config/sys/provision timed out${COLOUR_NONE}\n"
-	echo '{"exitcode": 28}' > $OUTPUTDIR/2.bigIQCollect.json
+  printf "${COLOUR_RED}Endpoint /mgmt/cm/shared/current-config/sys/provision timed out${COLOUR_NONE}\n"
+  echo '{"exitcode": 28}' > $OUTPUTDIR/2.bigIQCollect.json
 fi
+
+# Remove all existing inventories
+echo "-> Removing old inventories"
+INVENTORY_TASK_IDS=`curl -ksX GET "https://127.0.0.1/mgmt/cm/device/tasks/device-inventory" -H "X-F5-Auth-Token: $AUTH_TOKEN" | jq -r '.items[].id'`
+for ID in $INVENTORY_TASK_IDS
+do
+  curl -ksX DELETE "https://127.0.0.1/mgmt/cm/device/tasks/device-inventory/$ID" -o /dev/null -H "X-F5-Auth-Token: $AUTH_TOKEN"
+done
 
 echo "-> Reading device inventory details"
 AUTH_TOKEN=`getAuthToken $REFRESH_TOKEN`
@@ -108,7 +132,7 @@ if [ $INVENTORIES_LEN == 0 ]
 then
   echo "... $INVENTORIES_LEN inventories found: refresh requested"
   AUTH_TOKEN=`getAuthToken $REFRESH_TOKEN`
-  curl -ksX POST 'https://127.0.0.1/mgmt/cm/device/tasks/device-inventory' -H "X-F5-Auth-Token: $AUTH_TOKEN" -H "Content-Type: application/json" -d '{"devicesQueryUri": "https://localhost/mgmt/shared/resolver/device-groups/cm-bigip-allBigIpDevices/devices"}' > /dev/null
+  curl -ksX POST "https://127.0.0.1/mgmt/cm/device/tasks/device-inventory" -H "X-F5-Auth-Token: $AUTH_TOKEN" -H "Content-Type: application/json" -d '{"devicesQueryUri": "https://localhost/mgmt/shared/resolver/device-groups/cm-bigip-allBigIpDevices/devices"}' > /dev/null
 
   while [ $INVENTORIES_LEN == 0 ]
   do
