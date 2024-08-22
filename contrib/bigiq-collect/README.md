@@ -64,6 +64,7 @@ Password:
 -> Authentication successful
 -> Reading device list
 -> Reading system provisioning
+-> Removing old inventories
 -> Reading device inventory details
 ... 0 inventories found: refresh requested
 ... waiting for inventory refresh, sleeping for 5 seconds
