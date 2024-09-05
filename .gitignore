@@ -20,5 +20,4 @@ Thumbs.db
 /.idea/
 /venv/
 /f5tt/__pycache__/
-/contrib/gateway/__pycache__/
 /contrib/bigiq-collect/__pycache__/

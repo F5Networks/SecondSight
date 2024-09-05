@@ -9,13 +9,11 @@ import threading
 import smtplib
 import urllib3.exceptions
 import base64
-import re
 from io import BytesIO
 from requests import Request, Session
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from email.message import EmailMessage
 from dateutil.relativedelta import relativedelta
-from collections import defaultdict
 
 import cveDB
 import utils
@@ -210,9 +208,9 @@ def bigIqInventory(mode):
   rcode,provisioningDetails = bigIQInstanceProvisioning()
   rcode2,inventoryDetails = bigIQgetInventory()
 
-  hwSKUGrandTotals = {}
-  swSKUGrandTotals = {}
-  wholeInventory = []
+  hwSKUGrandTotals={}
+  swSKUGrandTotals={}
+  wholeInventory=[]
 
   if "items" in details:
     for item in details['items']:
@@ -370,9 +368,6 @@ def bigIqInventory(mode):
   instancesDict['hwTotals'].append(hwSKUGrandTotals)
   instancesDict['swTotals'] = []
   instancesDict['swTotals'].append(swSKUGrandTotals)
-
-  # FCP Modules
-  instancesDict['fcpModules'] = bigIQCollectFCPModules(inventoryDetails)
 
   output = {}
   output['report'] = utils.getVersionJson(reportType='Full',dataplane='BIG-IQ')
@@ -868,60 +863,3 @@ def bigIQCollectUtilityBilling():
     utilityBillingReport.append(report)
 
   return utilityBillingReport
-
-
-# Computes ELA/FCP modules
-def bigIQCollectFCPModules(inventoryDetails):
-
-  fcpModules = [
-    "FIPS 140 Compliant Mode",
-    "IP Intelligence",
-    "PEM URL Filtering",
-    "Secure Web Gateway",
-    "SSL Orchestrator",
-    "Threat Campaigns",
-    "URL Filtering"
-  ]
-
-  # Create a default dictionary to store the unique counts of modules for each tenant type
-  tenant_data = defaultdict(lambda: {module: 0 for module in fcpModules})
-
-  tenant_type_patterns = [
-    re.compile(r"ELA Software, Enterprise (\w+)\|"),
-    re.compile(r"FCP Software, Enterprise (\w+)\|")
-  ]
-
-  fcpSummary = []
-  chassisSNList = {}
-
-  for item in inventoryDetails.get('items', []):
-    active_modules = item.get('infoState', {}).get('license', {}).get('activeModules', [])
-    tenant_type = ""
-
-    # Extract tenant type from activeModules for both ELA and FCP
-    for active_module in active_modules:
-        for pattern in tenant_type_patterns:
-            tenant_type_match = pattern.search(active_module)
-            if tenant_type_match:
-                tenant_type += tenant_type_match.group(1) + " "
-                break  # Stop after finding the first match for this module
-    tenant_type = tenant_type.strip()
-
-    if tenant_type:
-        # Count unique occurrences of the modules of interest
-        for module in fcpModules:
-            if any(module in active_module for active_module in active_modules):
-                # Count once per hardware chassis
-                chassisSerialNumber = item.get('infoState', {}).get('chassisSerialNumber','').strip()
-
-                if chassisSerialNumber.strip() not in chassisSNList:
-                    chassisSNList[chassisSerialNumber] = True
-                    tenant_data[tenant_type][module] += 1
-
-  for tenant_type, module_counts in tenant_data.items():
-    fcpEntry = {}
-    fcpEntry['tenantType'] = tenant_type
-    fcpEntry['moduleCount'] = module_counts
-    fcpSummary.append(fcpEntry)
-
-  return fcpSummary
