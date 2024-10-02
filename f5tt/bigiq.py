@@ -267,7 +267,7 @@ def bigIqInventory(mode):
                 elaPlatformType = ''
 
                 for am in activeModulesArray:
-                  if am.startswith(('ELA,','FCP,','Good Bundle','Better Bundle','Best Bundle')):
+                  if am.startswith(('ELA,','FCP,','Good Bundle','Better Bundle','Best Bundle','ELA Software, Enterprise','FCP Software, Enterprise')):
                     inventoryData['elaPlatform'] = am.split('|')[0]
                     elaPlatformType = am.split('|')[0].split(' ')[-1].upper()
                     if elaPlatformType.lower() == 'Platforms'.lower():
@@ -888,7 +888,9 @@ def bigIQCollectFCPModules(inventoryDetails):
 
   tenant_type_patterns = [
     re.compile(r"ELA Software, Enterprise (\w+)\|"),
-    re.compile(r"FCP Software, Enterprise (\w+)\|")
+    re.compile(r"FCP Software, Enterprise (\w+)\|"),
+    re.compile(r"ELA, (\w+)\|"),
+    re.compile(r"FCP, (\w+)\|")
   ]
 
   fcpSummary = []
@@ -903,7 +905,8 @@ def bigIQCollectFCPModules(inventoryDetails):
         for pattern in tenant_type_patterns:
             tenant_type_match = pattern.search(active_module)
             if tenant_type_match:
-                tenant_type += tenant_type_match.group(1) + " "
+                #tenant_type += tenant_type_match.group(1) + " "
+                tenant_type = tenant_type_match.group(1)
                 break  # Stop after finding the first match for this module
     tenant_type = tenant_type.strip()
 
