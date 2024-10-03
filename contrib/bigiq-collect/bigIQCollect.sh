@@ -23,7 +23,7 @@ getAuthToken() {
 	echo `curl -ksX POST 'https://127.0.0.1/mgmt/shared/authn/exchange' -H 'Content-Type: text/plain' -d '{"refreshToken": {"token": "'$1'"}}' | jq '.token.token' -r`
 }
 
-VERSION="FCP Usage Script - 20240821"
+VERSION="FCP Usage Script - 20241003"
 BANNER="$VERSION - https://github.com/F5Networks/SecondSight\n\n
 This tool collects usage tracking data from BIG-IQ for offline postprocessing.\n\n
 === Usage:\n\n
@@ -34,28 +34,35 @@ $0 [options]\n\n
 -i\t\t\t- Interactive mode\n
 -u [username]\t\t- BIG-IQ username (batch mode)\n
 -p [password]\t\t- BIG-IQ password (batch mode)\n
--s [http(s)://address]\t- Upload data to Second Sight (optional)\n\n
+-c [customer_name]\t- Customer name (batch mode)\n
+-s [http(s)://address]\t- Upload data to Second Sight (optional)\n
+-t [seconds]\t\t- BIG-IQ timeout (optional, 90 seconds by default)\n\n
 === Examples:\n\n
 Interactive mode:\t\t$0 -i\n
 Interactive mode + upload:\t$0 -i -s https://<SECOND_SIGHT_FQDN_OR_IP>\n
-Batch mode:\t\t\t$0 -u [username] -p [password]\n
-Batch mode:\t\t\t$0 -u [username] -p [password] -s https://<SECOND_SIGHT_FQDN_OR_IP>\n
+Batch mode:\t\t\t$0 -u [username] -p [password] -c [customer_name]\n
+Batch mode:\t\t\t$0 -u [username] -p [password] -c [customer_name] -s https://<SECOND_SIGHT_FQDN_OR_IP>\n
 "
 
 COLOUR_RED='\033[0;31m'
 COLOUR_NONE='\033[0m'
+BIGIQ_TIMEOUT=90
 
-while getopts 'hviu:p:s:' OPTION
+while getopts 'hviu:p:s:c:t:' OPTION
 do
 	case "$OPTION" in
 		h)
 			echo -e $BANNER
 			exit
 		;;
+		t)
+			BIGIQ_TIMEOUT=$OPTARG
+		;;
 		i)
 			read -p "Username: " BIGIQ_USERNAME
 			read -sp "Password: " BIGIQ_PASSWORD
 			echo
+			read -p "Customer name: " CUSTOMER_NAME
 		;;
 		u)
 			BIGIQ_USERNAME=$OPTARG
@@ -66,6 +73,9 @@ do
 		s)
 			UPLOAD_SS=$OPTARG
 		;;
+		c)
+			CUSTOMER_NAME=$OPTARG
+		;;
 		v)
 			echo $VERSION
 			exit
@@ -73,7 +83,7 @@ do
 	esac
 done
 
-if [ "$1" = "" ] || [ "$BIGIQ_USERNAME" = "" ] || [ "$BIGIQ_PASSWORD" = "" ]
+if [ "$1" = "" ] || [ "$BIGIQ_USERNAME" = "" ] || [ "$BIGIQ_PASSWORD" = "" ] || [ "$CUSTOMER_NAME" = "" ]
 then
 	echo -e $BANNER
 	exit
@@ -99,6 +109,8 @@ echo "-> Authentication successful"
 
 OUTPUTROOT=/tmp
 OUTPUTDIR=`mktemp -d`
+
+EXTRA_INFO_JSON=$OUTPUTDIR/0.bigIQCollect.json
 
 #
 # Debug output
@@ -140,8 +152,8 @@ then
 
   while [ $INVENTORIES_LEN == 0 ]
   do
-    echo "... waiting for inventory refresh, sleeping for 15 seconds"
-    sleep 15
+    echo "... waiting for inventory refresh, sleeping for $BIGIQ_TIMEOUT seconds"
+    sleep $BIGIQ_TIMEOUT
     AUTH_TOKEN=`getAuthToken $REFRESH_TOKEN`
     INVENTORIES=`curl -ksX GET "https://127.0.0.1/mgmt/cm/device/tasks/device-inventory" -H "X-F5-Auth-Token: $AUTH_TOKEN"`
     INVENTORIES_LEN=`echo $INVENTORIES | jq '.items|length'`
@@ -166,12 +178,14 @@ AUTH_TOKEN=`getAuthToken $REFRESH_TOKEN`
 curl -ksX GET "https://127.0.0.1/mgmt/cm/device/reports/device-inventory/$INV_ID/results" -H "X-F5-Auth-Token: $AUTH_TOKEN" > $OUTPUTDIR/4.bigIQCollect.json
 
 MACHINE_IDS=`cat $OUTPUTDIR/4.bigIQCollect.json | jq -r '.items[].infoState.machineId'`
+DEVICE_COUNTER=0
 
 for M in $MACHINE_IDS
 do
 	echo "-> Reading device info for [$M]"
 	AUTH_TOKEN=`getAuthToken $REFRESH_TOKEN`
 	curl -ksX GET "https://127.0.0.1/mgmt/cm/system/machineid-resolver/$M" -H "X-F5-Auth-Token: $AUTH_TOKEN" > $OUTPUTDIR/machineid-resolver-$M.json
+	DEVICE_COUNTER=$((DEVICE_COUNTER+1))
 done
 
 echo "-> Reading device telemetry"
@@ -341,9 +355,25 @@ done
 
 ### /Utility billing collection
 
+### Summary
+CURRENT_TIME=`date +"%Y%m%d-%H%M"`
+
+echo "-> Adding summary"
+echo "... Timestamp [$CURRENT_TIME]"
+echo "... Customer Name [$CUSTOMER_NAME]"
+echo "... Total devices [$DEVICE_COUNTER]"
+
+cat - << __EOT__ > $EXTRA_INFO_JSON
+{
+  "customerName": "$CUSTOMER_NAME",
+  "timestamp": "$CURRENT_TIME",
+  "totalDevices": $DEVICE_COUNTER
+}
+__EOT__
 
 echo "-> Data collection completed, building tarfile"
-TARFILEBASENAME=`date +"%Y%m%d-%H%M"`-bigIQCollect.tgz
+CUSTOMER_NAME="${CUSTOMER_NAME//[^[:alnum:]]/_}"
+TARFILEBASENAME=$CUSTOMER_NAME-$CURRENT_TIME-bigIQCollect.tgz
 TARFILE=$OUTPUTROOT/$TARFILEBASENAME
 tar zcmf $TARFILE $OUTPUTDIR 2>/dev/null
 rm -rf $OUTPUTDIR
