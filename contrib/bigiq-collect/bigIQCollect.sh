@@ -365,6 +365,7 @@ echo "... Total devices [$DEVICE_COUNTER]"
 
 cat - << __EOT__ > $EXTRA_INFO_JSON
 {
+  "version": "$VERSION",
   "customerName": "$CUSTOMER_NAME",
   "timestamp": "$CURRENT_TIME",
   "totalDevices": $DEVICE_COUNTER
