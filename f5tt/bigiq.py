@@ -279,6 +279,11 @@ def bigIqInventory(mode):
                   inventoryData['chassisSerialNumber'] = ""
                 inventoryData['platform'] = platformInsights
 
+                if 'chassisSlotList' in invDevice['infoState']:
+                  inventoryData['chassisSlotList'] = invDevice['infoState']['chassisSlotList']
+                else:
+                  inventoryData['chassisSlotList'] = {}
+
                 if 'licenseEndDateTime' in invDevice['infoState']['license']:
                   inventoryData['licenseEndDateTime']=invDevice['infoState']['license']['licenseEndDateTime']
 
