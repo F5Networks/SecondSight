@@ -188,6 +188,10 @@ do
 	DEVICE_COUNTER=$((DEVICE_COUNTER+1))
 done
 
+echo "-> Collecting F5OS configuration"
+AUTH_TOKEN=`getAuthToken $REFRESH_TOKEN`
+curl -ksX GET "https://127.0.0.1/mgmt/cm/f5os/config" -H "X-F5-Auth-Token: $AUTH_TOKEN" > $OUTPUTDIR/5.bigIQCollect.json
+
 echo "-> Reading device telemetry"
 ALL_TELEMETRY="
 bigip-cpu|cpu-usage|avg-value-per-event|-1H|5|MINUTES
