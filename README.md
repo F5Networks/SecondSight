@@ -33,9 +33,7 @@ Second Sight has been tested on:
 
 See F5 Support solutions:
 
-- [K83394355: How to count the number of NGINX instances with Second Sight on NGINX Instance Manager](https://support.f5.com/csp/article/K83394355)
-- [K29144504: How to install and use (Offline) Second Sight collection Script on BIG-IQ](https://support.f5.com/csp/article/K29144504)
-- [K94129313: How to install and use Docker Second Sight collection script on BIG-IQ](https://support.f5.com/csp/article/K94129313)
+- [K29144504: How to install and use the F5 FCP usage script on BIG-IQ Centralized Manager (CM)](https://my.f5.com/manage/s/article/K29144504)
 
 ## Additional tools
 
