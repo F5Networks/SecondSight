@@ -23,7 +23,7 @@ getAuthToken() {
 	echo `curl -ksX POST 'https://127.0.0.1/mgmt/shared/authn/exchange' -H 'Content-Type: text/plain' -d '{"refreshToken": {"token": "'$1'"}}' | jq '.token.token' -r`
 }
 
-VERSION="FCP Usage Script - 20241003"
+VERSION="FCP Usage Script - 20250108"
 BANNER="$VERSION - https://github.com/F5Networks/SecondSight\n\n
 This tool collects usage tracking data from BIG-IQ for offline postprocessing.\n\n
 === Usage:\n\n
