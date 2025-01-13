@@ -174,6 +174,11 @@ def bigIQFetchBillingReport(reportFile):
   return bigIQcallRESTURI(method = "GET", uri = "/mgmt/cm/device/licensing/license-reports-download/"+reportFile, body = "" )
 
 
+# Get tarfile info
+def bigIQFetchTarFileInfo():
+  return bigIQcallRESTURI(method = "GET", uri = "/tarfile/info", body = "" )
+
+
 # Invokes the given BIG-IQ REST API method
 # The uri must start with '/'
 def bigIQcallRESTURI(method,uri,body,params=""):
@@ -379,8 +384,12 @@ def bigIqInventory(mode):
   # FCP Modules
   instancesDict['fcpModules'] = bigIQCollectFCPModules(inventoryDetails)
 
+  # Create output object
   output = {}
-  output['report'] = utils.getVersionJson(reportType='Full',dataplane='BIG-IQ')
+
+  tarFileInfoRes,tarFileInfoBody = bigIQFetchTarFileInfo()
+
+  output['report'] = utils.getVersionJson(reportType='Full',dataplane='BIG-IQ',tarfileInfo=tarFileInfoBody)
 
   timeNow = datetime.datetime.now()
   monthAgo = timeNow - datetime.timedelta(days=30)
