@@ -75,6 +75,10 @@ def getFileContent(filename,retCode=200):
   return make_response(json,retCode)
 
 
+@app.route('/tarfile/info', methods=['GET'])
+def getTarFileInfo():
+  return getFileContent("0.bigIQCollect.json")
+
 @app.route('/mgmt/shared/resolver/device-groups/cm-bigip-allBigIpDevices/devices', methods=['GET'])
 def getDevices():
   return getFileContent("1.bigIQCollect.json")
@@ -183,7 +187,6 @@ def bigiqLogin():
     "lastUpdateMicros": 1636742559283127
 });
 
-# Upload a BIG-IQ tgz file for postprocessing
 @app.route('/upload', methods = ['POST'])
 def upload_file():
    if request.method == 'POST':

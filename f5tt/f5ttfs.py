@@ -75,6 +75,10 @@ def getFileContent(filename,retCode=200):
   return make_response(json,retCode)
 
 
+@app.route('/tarfile/info', methods=['GET'])
+def getTarFileInfo():
+  return getFileContent("0.bigIQCollect.json")
+
 @app.route('/mgmt/shared/resolver/device-groups/cm-bigip-allBigIpDevices/devices', methods=['GET'])
 def getDevices():
   return getFileContent("1.bigIQCollect.json")

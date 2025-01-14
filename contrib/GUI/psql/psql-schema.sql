@@ -70,6 +70,10 @@ create table if not exists archives (
 	archive_type	integer not null,
 	uid		uuid unique,
 	description	varchar(256),
+	collector_version varchar(64),
+	collector_customername varchar(256),
+	collector_timestamp timestamp with time zone,
+	collector_totaldevices int;
 
 	foreign key (archive_type) references archive_types(id)
 );
