@@ -154,6 +154,11 @@ def bigIQgetInventory():
     return res,body
 
 
+# Returns Velos blades information
+def bigIQGetVelosInfo():
+  return bigIQcallRESTURI(method = "GET",uri = "/mgmt/cm/f5os/config", body = "" )
+
+
 # Returns all utility licenses
 def bigIQGetLicenses():
   return bigIQcallRESTURI(method = "GET",uri = "/mgmt/cm/device/licensing/pool/utility/licenses", body = "", params = { '$select': 'regKey,status' })
@@ -286,6 +291,21 @@ def bigIqInventory(mode):
 
                 if 'chassisSlotList' in invDevice['infoState']:
                   inventoryData['chassisSlotList'] = invDevice['infoState']['chassisSlotList']
+
+                  # Detects Velos chassis
+                  velosChassisSNpattern = re.compile("chs(.*)s")
+                  isVelosChassis = True if velosChassisSNpattern.match(inventoryData['chassisSerialNumber']) and elaPlatformType == 'CX410' else False
+
+                  print(f"IS VELOS CHASSIS {isVelosChassis}")
+
+                  if isVelosChassis:
+                    # Gets Velos blades serial numbers
+                    res,allVelosInfo = bigIQGetVelosInfo()
+                    if res == 200:
+                      # Fill in Velos blades serial numbers
+                      for velosItem in allVelosInfo['items']:
+                        print(f"VELOS SN {velosItem['serialNumber']} model {velosItem['model']}")
+
                 else:
                   inventoryData['chassisSlotList'] = []
 

@@ -69,7 +69,7 @@ def getFileContent(filename,retCode=200):
     for line in lines:
       json+=line
   except FileNotFoundError:
-    print('Error:',filename,'not found')
+    #print('Error:',filename,'not found')
     retCode=404
 
   return make_response(json,retCode)
@@ -94,6 +94,10 @@ def getDeviceInventory():
 @app.route('/mgmt/cm/device/reports/device-inventory/<string:inventoryId>/results', methods=['GET'])
 def getDeviceInventoryResults(inventoryId):
   return getFileContent("4.bigIQCollect.json")
+
+@app.route('/mgmt/cm/f5os/config', methods=['GET'])
+def getVelosInfo():
+  return getFileContent("5.bigIQCollect.json")
 
 @app.route('/mgmt/cm/system/machineid-resolver/<string:machineId>', methods=['GET'])
 def getMachineIdResolver(machineId):
