@@ -275,8 +275,12 @@ def bigIqInventory(mode):
                 inventoryData['activeModules'] = activeModulesArray
                 inventoryData['elaPlatform'] = ''
                 elaPlatformType = ''
+                hwPlatformType = ''
 
                 for am in activeModulesArray:
+                  if hwPlatformType == '':
+                    hwPlatformType = am.split('|')[0].split(' ')[-1].upper()
+
                   if am.startswith(('ELA,','FCP,','Good Bundle','Better Bundle','Best Bundle','ELA Software, Enterprise','FCP Software, Enterprise')):
                     inventoryData['elaPlatform'] = am.split('|')[0]
                     elaPlatformType = am.split('|')[0].split(' ')[-1].upper()
@@ -294,18 +298,22 @@ def bigIqInventory(mode):
 
                   # Detects Velos chassis
                   velosChassisSNpattern = re.compile("chs(.*)s")
-                  isVelosChassis = True if velosChassisSNpattern.match(inventoryData['chassisSerialNumber']) and elaPlatformType == 'CX410' else False
-
-                  print(f"IS VELOS CHASSIS {isVelosChassis}")
+                  isVelosChassis = True if velosChassisSNpattern.match(inventoryData['chassisSerialNumber']) and hwPlatformType == 'CX410' else False
 
                   if isVelosChassis:
                     # Gets Velos blades serial numbers
                     res,allVelosInfo = bigIQGetVelosInfo()
+
                     if res == 200:
                       # Fill in Velos blades serial numbers
                       for velosItem in allVelosInfo['items']:
-                        print(f"VELOS SN {velosItem['serialNumber']} model {velosItem['model']}")
+                        inventoryData['chassisSlotList'] = []
+                        for velosBlade in velosItem['bladesState']:
+                          bladeData = {}
+                          bladeData['slotId'] = int(velosBlade['name'].split('-')[-1])
+                          bladeData['serialNumber'] = velosBlade['serialNumber']
 
+                          inventoryData['chassisSlotList'].append(bladeData)
                 else:
                   inventoryData['chassisSlotList'] = []
 
