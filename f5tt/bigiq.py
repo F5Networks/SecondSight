@@ -78,6 +78,13 @@ swModules = {
   "ilx": ""
 }
 
+# Velos chassis types
+velosChassisTypes = [
+  "CX410"
+]
+
+# Variables init
+
 this.bigiq_fqdn=''
 this.bigiq_username=''
 this.bigiq_password=''
@@ -152,6 +159,11 @@ def bigIQgetInventory():
     res,body = bigIQcallRESTURI(method = "GET", uri = "/mgmt/cm/device/reports/device-inventory/"+latestResultsReference+"/results", body = "" )
 
     return res,body
+
+
+# Returns Velos blades information
+def bigIQGetVelosInfo():
+  return bigIQcallRESTURI(method = "GET",uri = "/mgmt/cm/f5os/config", body = "" )
 
 
 # Returns all utility licenses
@@ -270,8 +282,12 @@ def bigIqInventory(mode):
                 inventoryData['activeModules'] = activeModulesArray
                 inventoryData['elaPlatform'] = ''
                 elaPlatformType = ''
+                hwPlatformType = ''
 
                 for am in activeModulesArray:
+                  if hwPlatformType == '':
+                    hwPlatformType = am.split('|')[0].split(' ')[-1].upper()
+
                   if am.startswith(('ELA,','FCP,','Good Bundle','Better Bundle','Best Bundle','ELA Software, Enterprise','FCP Software, Enterprise')):
                     inventoryData['elaPlatform'] = am.split('|')[0]
                     elaPlatformType = am.split('|')[0].split(' ')[-1].upper()
@@ -286,6 +302,25 @@ def bigIqInventory(mode):
 
                 if 'chassisSlotList' in invDevice['infoState']:
                   inventoryData['chassisSlotList'] = invDevice['infoState']['chassisSlotList']
+
+                  # Detects Velos chassis
+                  velosChassisSNpattern = re.compile("chs(.*)s")
+                  isVelosChassis = True if velosChassisSNpattern.match(inventoryData['chassisSerialNumber']) and hwPlatformType in velosChassisTypes else False
+
+                  if isVelosChassis:
+                    # Gets Velos blades serial numbers
+                    res,allVelosInfo = bigIQGetVelosInfo()
+
+                    if res == 200:
+                      # Fill in Velos blades serial numbers
+                      for velosItem in allVelosInfo['items']:
+                        inventoryData['chassisSlotList'] = []
+                        for velosBlade in velosItem['bladesState']:
+                          bladeData = {}
+                          bladeData['slotId'] = int(velosBlade['name'].split('-')[-1])
+                          bladeData['serialNumber'] = velosBlade['serialNumber'] if not velosBlade['serialNumber'] == "Not Available" else ""
+
+                          inventoryData['chassisSlotList'].append(bladeData)
                 else:
                   inventoryData['chassisSlotList'] = []
 
