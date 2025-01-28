@@ -78,6 +78,13 @@ swModules = {
   "ilx": ""
 }
 
+# Velos chassis types
+velosChassisTypes = [
+  "CX410"
+]
+
+# Variables init
+
 this.bigiq_fqdn=''
 this.bigiq_username=''
 this.bigiq_password=''
@@ -298,7 +305,7 @@ def bigIqInventory(mode):
 
                   # Detects Velos chassis
                   velosChassisSNpattern = re.compile("chs(.*)s")
-                  isVelosChassis = True if velosChassisSNpattern.match(inventoryData['chassisSerialNumber']) and hwPlatformType == 'CX410' else False
+                  isVelosChassis = True if velosChassisSNpattern.match(inventoryData['chassisSerialNumber']) and hwPlatformType in velosChassisTypes else False
 
                   if isVelosChassis:
                     # Gets Velos blades serial numbers
@@ -311,7 +318,7 @@ def bigIqInventory(mode):
                         for velosBlade in velosItem['bladesState']:
                           bladeData = {}
                           bladeData['slotId'] = int(velosBlade['name'].split('-')[-1])
-                          bladeData['serialNumber'] = velosBlade['serialNumber']
+                          bladeData['serialNumber'] = velosBlade['serialNumber'] if not velosBlade['serialNumber'] == "Not Available" else ""
 
                           inventoryData['chassisSlotList'].append(bladeData)
                 else:
