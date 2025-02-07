@@ -12,7 +12,7 @@
 # $2 is the BIG-IQ admin password
 #
 getRefreshToken() {
-	echo `curl -ksX POST 'https://127.0.0.1/mgmt/shared/authn/login' -H 'Content-Type: text/plain' -d '{"username": "'$1'","password": "'$2'"}' | jq '.refreshToken.token' -r`
+  echo `curl -ksX POST 'https://127.0.0.1/mgmt/shared/authn/login' -H 'Content-Type: text/plain' -d '{"username": "'$1'","password": "'$2'"}' | jq '.refreshToken.token' -r`
 }
 
 #
@@ -20,10 +20,32 @@ getRefreshToken() {
 # $1 is the refresh token to exchange for an access token
 #
 getAuthToken() {
-	echo `curl -ksX POST 'https://127.0.0.1/mgmt/shared/authn/exchange' -H 'Content-Type: text/plain' -d '{"refreshToken": {"token": "'$1'"}}' | jq '.token.token' -r`
+  echo `curl -ksX POST 'https://127.0.0.1/mgmt/shared/authn/exchange' -H 'Content-Type: text/plain' -d '{"refreshToken": {"token": "'$1'"}}' | jq '.token.token' -r`
 }
 
-VERSION="FCP Usage Script - 20250108"
+#
+# Build tarfile with optional upload to Second Sight
+#
+finalizeTarfile() {
+  ## Building tarfile
+  echo "-> Data collection completed, building tarfile"
+  CUSTOMER_NAME="${CUSTOMER_NAME//[^[:alnum:]]/_}"
+  TARFILEBASENAME=$CUSTOMER_NAME-$CURRENT_TIME-bigIQCollect.tgz
+  TARFILE=$OUTPUTROOT/$TARFILEBASENAME
+  tar zcmf $TARFILE $OUTPUTDIR 2>/dev/null
+  rm -rf $OUTPUTDIR
+
+  if [ "$UPLOAD_SS" = "" ]
+  then
+    echo "-> All done, copy $TARFILE to your local host using scp"
+  else
+    echo "-> Uploading $TARFILE to Second Sight at $UPLOAD_SS"
+    curl -X POST -sk $UPLOAD_SS/api/v1/archive -F "file=@$TARFILE" -F "description=$TARFILEBASENAME"
+    echo "-> Upload complete"
+  fi
+}
+
+VERSION="FCP Usage Script - 20250207"
 BANNER="$VERSION - https://github.com/F5Networks/SecondSight\n\n
 This tool collects usage tracking data from BIG-IQ for offline postprocessing.\n\n
 === Usage:\n\n
@@ -36,51 +58,56 @@ $0 [options]\n\n
 -p [password]\t\t- BIG-IQ password (batch mode)\n
 -c [customer_name]\t- Customer name (batch mode)\n
 -s [http(s)://address]\t- Upload data to Second Sight (optional)\n
--t [seconds]\t\t- BIG-IQ timeout (optional, 90 seconds by default)\n\n
+-t [seconds]\t\t- BIG-IQ timeout (optional, 90 seconds by default)\n
+-d\t\t\t\t- Collect data for troubleshooting purposes\n\n
 === Examples:\n\n
 Interactive mode:\t\t$0 -i\n
 Interactive mode + upload:\t$0 -i -s https://<SECOND_SIGHT_FQDN_OR_IP>\n
 Batch mode:\t\t\t$0 -u [username] -p [password] -c [customer_name]\n
-Batch mode:\t\t\t$0 -u [username] -p [password] -c [customer_name] -s https://<SECOND_SIGHT_FQDN_OR_IP>\n
+Batch mode:\t\t\t$0 -u [username] -p [password] -c [customer_name] -s https://<SECOND_SIGHT_FQDN_OR_IP>\n\n
+Collect debug data:\t\t$0 -i -d\n
 "
 
 COLOUR_RED='\033[0;31m'
 COLOUR_NONE='\033[0m'
 BIGIQ_TIMEOUT=90
 
-while getopts 'hviu:p:s:c:t:' OPTION
+while getopts 'hviu:p:s:c:t:d' OPTION
 do
-	case "$OPTION" in
-		h)
-			echo -e $BANNER
-			exit
-		;;
-		t)
-			BIGIQ_TIMEOUT=$OPTARG
-		;;
-		i)
-			read -p "Username: " BIGIQ_USERNAME
-			read -sp "Password: " BIGIQ_PASSWORD
-			echo
-			read -p "Customer name: " CUSTOMER_NAME
-		;;
-		u)
-			BIGIQ_USERNAME=$OPTARG
-		;;
-		p)
-			BIGIQ_PASSWORD=$OPTARG
-		;;
-		s)
-			UPLOAD_SS=$OPTARG
-		;;
-		c)
-			CUSTOMER_NAME=$OPTARG
-		;;
-		v)
-			echo $VERSION
-			exit
-		;;
-	esac
+  case "$OPTION" in
+    h)
+      echo -e $BANNER
+      exit
+    ;;
+    t)
+      BIGIQ_TIMEOUT=$OPTARG
+    ;;
+    d)
+      DEBUG_MODE=true
+    ;;
+    i)
+      read -p "Username: " BIGIQ_USERNAME
+      read -sp "Password: " BIGIQ_PASSWORD
+      echo
+      read -p "Customer name: " CUSTOMER_NAME
+    ;;
+    u)
+      BIGIQ_USERNAME=$OPTARG
+    ;;
+    p)
+      BIGIQ_PASSWORD=$OPTARG
+    ;;
+    s)
+      UPLOAD_SS=$OPTARG
+    ;;
+    c)
+      CUSTOMER_NAME=$OPTARG
+    ;;
+    v)
+      echo $VERSION
+      exit
+    ;;
+  esac
 done
 
 if [ "$1" = "" ] || [ "$BIGIQ_USERNAME" = "" ] || [ "$BIGIQ_PASSWORD" = "" ] || [ "$CUSTOMER_NAME" = "" ]
@@ -90,6 +117,53 @@ then
 fi
 
 echo $VERSION
+
+CURRENT_TIME=`date +"%Y%m%d-%H%M"`
+OUTPUTROOT=/tmp
+OUTPUTDIR=`mktemp -d`
+
+EXTRA_INFO_JSON=$OUTPUTDIR/0.bigIQCollect.json
+DEBUG_INFO_JSON=$OUTPUTDIR/99.bigIQCollect.json
+
+#
+# Debug output
+#
+DEBUGFILE=$OUTPUTDIR/bigIQCollect.out
+exec &> >(tee -a $DEBUGFILE)
+
+### Collect troubleshooting details if '-d' option is used
+if [ $DEBUG_MODE ]
+then
+  echo "-> Collecting debug information"
+  echo "... tmsh show"
+  TMSH_SHOW=`tmsh show | jq -Rsc 'split("\n")'`
+  echo "... df"
+  BASH_DF=`df -k | jq -Rsc 'split("\n")'`
+  echo "... free"
+  BASH_FREE=`free | jq -Rsc 'split("\n")'`
+  echo "... uptime"
+  BASH_UPTIME=`uptime | jq -Rsc 'split("\n")'`
+  echo "... ps auxw"
+  BASH_PS=`ps auxw | jq -Rsc 'split("\n")'`
+  echo "... pstree"
+  BASH_PSTREE=`pstree | jq -Rsc 'split("\n")'`
+
+  cat - << __EOT__ > $DEBUG_INFO_JSON
+{
+  "tmsh_show": $TMSH_SHOW,
+  "df": $BASH_DF,
+  "free": $BASH_FREE,
+  "uptime": $BASH_UPTIME,
+  "ps": $BASH_PS,
+  "pstree": $BASH_PSTREE
+}
+__EOT__
+
+  finalizeTarfile
+  exit
+fi
+
+touch $DEBUG_INFO_JSON
 
 REFRESH_TOKEN=`getRefreshToken $BIGIQ_USERNAME $BIGIQ_PASSWORD`
 
@@ -106,17 +180,6 @@ then
 fi
 
 echo "-> Authentication successful"
-
-OUTPUTROOT=/tmp
-OUTPUTDIR=`mktemp -d`
-
-EXTRA_INFO_JSON=$OUTPUTDIR/0.bigIQCollect.json
-
-#
-# Debug output
-#
-DEBUGFILE=$OUTPUTDIR/bigIQCollect.out
-exec &> >(tee -a $DEBUGFILE)
 
 echo "-> Reading device list"
 AUTH_TOKEN=`getAuthToken $REFRESH_TOKEN`
@@ -360,34 +423,23 @@ done
 ### /Utility billing collection
 
 ### Summary
-CURRENT_TIME=`date +"%Y%m%d-%H%M"`
 
 echo "-> Adding summary"
 echo "... Timestamp [$CURRENT_TIME]"
 echo "... Customer Name [$CUSTOMER_NAME]"
 echo "... Total devices [$DEVICE_COUNTER]"
 
+### BIG-IQ information
+TMSH_VERSION=`tmsh show sys version | jq -Rsc 'split("\n")'`
+
 cat - << __EOT__ > $EXTRA_INFO_JSON
 {
   "version": "$VERSION",
   "customerName": "$CUSTOMER_NAME",
   "timestamp": "$CURRENT_TIME",
-  "totalDevices": $DEVICE_COUNTER
+  "totalDevices": $DEVICE_COUNTER,
+  "bigiq": { "version": $TMSH_VERSION }
 }
 __EOT__
 
-echo "-> Data collection completed, building tarfile"
-CUSTOMER_NAME="${CUSTOMER_NAME//[^[:alnum:]]/_}"
-TARFILEBASENAME=$CUSTOMER_NAME-$CURRENT_TIME-bigIQCollect.tgz
-TARFILE=$OUTPUTROOT/$TARFILEBASENAME
-tar zcmf $TARFILE $OUTPUTDIR 2>/dev/null
-rm -rf $OUTPUTDIR
-
-if [ "$UPLOAD_SS" = "" ]
-then
-	echo "-> All done, copy $TARFILE to your local host using scp"
-else
-	echo "-> Uploading $TARFILE to Second Sight at $UPLOAD_SS"
-	curl -X POST -sk $UPLOAD_SS/api/v1/archive -F "file=@$TARFILE" -F "description=$TARFILEBASENAME"
-	echo "-> Upload complete"
-fi
+finalizeTarfile
