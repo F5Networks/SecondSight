@@ -45,7 +45,7 @@ finalizeTarfile() {
   fi
 }
 
-VERSION="FCP Usage Script - 20250207"
+VERSION="FCP Usage Script - 20250212"
 BANNER="$VERSION - https://github.com/F5Networks/SecondSight\n\n
 This tool collects usage tracking data from BIG-IQ for offline postprocessing.\n\n
 === Usage:\n\n
