@@ -64,7 +64,7 @@ $0 [options]\n\n
 Interactive mode:\t\t$0 -i\n
 Interactive mode + upload:\t$0 -i -s https://<SECOND_SIGHT_FQDN_OR_IP>\n
 Batch mode:\t\t\t$0 -u [username] -p [password] -c [customer_name]\n
-Batch mode:\t\t\t$0 -u [username] -p [password] -c [customer_name] -s https://<SECOND_SIGHT_FQDN_OR_IP>\n\n
+Batch mode + upload:\t\t$0 -u [username] -p [password] -c [customer_name] -s https://<SECOND_SIGHT_FQDN_OR_IP>\n\n
 Collect debug data:\t\t$0 -i -d\n
 "
 
@@ -147,6 +147,8 @@ then
   BASH_PS=`ps auxw | jq -Rsc 'split("\n")'`
   echo "... pstree"
   BASH_PSTREE=`pstree | jq -Rsc 'split("\n")'`
+  echo "... bigstart status"
+  BASH_BIGSTART_STATUS=`bigstart status | jq -Rsc 'split("\n")'`
 
   cat - << __EOT__ > $DEBUG_INFO_JSON
 {
@@ -155,7 +157,10 @@ then
   "free": $BASH_FREE,
   "uptime": $BASH_UPTIME,
   "ps": $BASH_PS,
-  "pstree": $BASH_PSTREE
+  "pstree": $BASH_PSTREE,
+  "bigstart": {
+    "status": $BASH_BIGSTART_STATUS
+  }
 }
 __EOT__
 
