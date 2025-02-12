@@ -168,6 +168,10 @@ __EOT__
   exit
 fi
 
+# Disable HTTP(S) proxies
+export https_proxy=
+export http_proxy=
+
 touch $DEBUG_INFO_JSON
 
 REFRESH_TOKEN=`getRefreshToken $BIGIQ_USERNAME $BIGIQ_PASSWORD`
