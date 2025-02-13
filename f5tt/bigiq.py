@@ -315,12 +315,13 @@ def bigIqInventory(mode):
                       # Fill in Velos blades serial numbers
                       for velosItem in allVelosInfo['items']:
                         inventoryData['chassisSlotList'] = []
-                        for velosBlade in velosItem['bladesState']:
-                          bladeData = {}
-                          bladeData['slotId'] = int(velosBlade['name'].split('-')[-1])
-                          bladeData['serialNumber'] = velosBlade['serialNumber'] if not velosBlade['serialNumber'] == "Not Available" else ""
+                        if 'bladesState' in velosItem:
+                          for velosBlade in velosItem['bladesState']:
+                            bladeData = {}
+                            bladeData['slotId'] = int(velosBlade['name'].split('-')[-1])
+                            bladeData['serialNumber'] = velosBlade['serialNumber'] if not velosBlade['serialNumber'] == "Not Available" else ""
 
-                          inventoryData['chassisSlotList'].append(bladeData)
+                            inventoryData['chassisSlotList'].append(bladeData)
                 else:
                   inventoryData['chassisSlotList'] = []
 
