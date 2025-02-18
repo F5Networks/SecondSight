@@ -73,7 +73,7 @@ create table if not exists archives (
 	collector_version varchar(64),
 	collector_customername varchar(256),
 	collector_timestamp timestamp with time zone,
-	collector_totaldevices int;
+	collector_totaldevices int,
 
 	foreign key (archive_type) references archive_types(id)
 );
@@ -171,15 +171,25 @@ create table if not exists edw_ve_hostnames (
         foreign key (pool_reg_key) references edw_pool_reg_keys(id)
 );
 
+create table if not exists archive_to_contract (
+	id		serial unique,
+	archive_uid	uuid,
+	contract_id	integer,
+
+	primary key (archive_uid,contract_id),
+	foreign key (archive_uid) references archives(uid),
+	foreign key (contract_id) references edw_contracts(id)
+);
+
 create view all_contracts as
         select edw_customers.id as end_customer_id,edw_customers.end_customer_name,
                 edw_contracts.id as edw_contracts_id,legal_contract,start_date,end_date,
-                edw_salesorders.id as edw_salesorders_id,sales_order, 
+                edw_salesorders.id as edw_salesorders_id,sales_order,
                 archive_to_contract.id as archive_to_contract_id,
                 archive_to_contract.archive_uid
         from edw_customers,edw_contracts,edw_salesorders,archive_to_contract
         where edw_salesorders.legal_contract_id = edw_contracts.id
-                and edw_contracts.end_customer = edw_customers.id 
+                and edw_contracts.end_customer = edw_customers.id
                 and archive_to_contract.contract_id = edw_contracts.id;
 
 create view all_keys as
@@ -262,16 +272,6 @@ where
         edw_customers.id = edw_contracts.end_customer and
         edw_contracts.id = edw_salesorders.legal_contract_id and
         edw_salesorders.id = edw_regkeys.sales_order_id;
-
-create table if not exists archive_to_contract (
-	id		serial unique,
-	archive_uid	uuid,
-	contract_id	integer,
-
-	primary key (archive_uid,contract_id),
-	foreign key (archive_uid) references archives(uid),
-	foreign key (contract_id) references edw_contracts(id)
-);
 
 create table if not exists sw_on_hw (
 	id			serial unique,
