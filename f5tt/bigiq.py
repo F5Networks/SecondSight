@@ -313,15 +313,21 @@ def bigIqInventory(mode):
 
                     if res == 200:
                       # Fill in Velos blades serial numbers
-                      for velosItem in allVelosInfo['items']:
-                        inventoryData['chassisSlotList'] = []
-                        if 'bladesState' in velosItem:
-                          for velosBlade in velosItem['bladesState']:
-                            bladeData = {}
-                            bladeData['slotId'] = int(velosBlade['name'].split('-')[-1])
-                            bladeData['serialNumber'] = velosBlade['serialNumber'] if not velosBlade['serialNumber'] == "Not Available" else ""
+                      initialInventoryData = inventoryData['chassisSlotList']
+                      inventoryData['chassisSlotList'] = []
 
-                            inventoryData['chassisSlotList'].append(bladeData)
+                      for velosItem in allVelosInfo['items']:
+                        if inventoryData['chassisSerialNumber'] != "":
+                          if inventoryData['chassisSerialNumber'] == velosItem['serialNumber']:
+                            if 'bladesState' in velosItem:
+                              for velosBlade in velosItem['bladesState']:
+                                bladeData = {}
+                                bladeData['slotId'] = int(velosBlade['name'].split('-')[-1])
+                                bladeData['serialNumber'] = velosBlade['serialNumber'] if not velosBlade['serialNumber'] == "Not Available" else ""
+
+                                for i in initialInventoryData:
+                                  if i['slotId'] == bladeData['slotId'] and i['serialNumber'] != "":
+                                    inventoryData['chassisSlotList'].append(bladeData)
                 else:
                   inventoryData['chassisSlotList'] = []
 
@@ -329,7 +335,7 @@ def bigIqInventory(mode):
                   inventoryData['licenseEndDateTime']=invDevice['infoState']['license']['licenseEndDateTime']
 
         if machineIdFound == False:
-          inventoryData['inventoryStatus']="partial"
+          inventoryData['inventoryStatus'] = "partial"
 
       # Gets TMOS modules provisioning for the current BIG-IP device
       # https://support.f5.com/csp/article/K4309
