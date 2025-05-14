@@ -447,6 +447,13 @@ def bigIqInventory(mode):
   output['telemetry'] = bigIqTelemetry(mode)
   output['utilityBilling'] = bigIQCollectUtilityBilling()
 
+  res,allVelosInfo = bigIQGetVelosInfo()
+  if res == 200:
+    output['f5os'] = allVelosInfo
+  else:
+    output['f5os'] = {}
+
+
   # JSON mode
   if mode == 'JSON':
     return output,200
