@@ -318,7 +318,7 @@ def bigIqInventory(mode):
 
                       for velosItem in allVelosInfo['items']:
                         if inventoryData['chassisSerialNumber'] != "":
-                          if inventoryData['chassisSerialNumber'] == velosItem['serialNumber']:
+                          if 'serialNumber' in velosItem and inventoryData['chassisSerialNumber'] == velosItem['serialNumber']:
                             if 'bladesState' in velosItem:
                               for velosBlade in velosItem['bladesState']:
                                 bladeData = {}
