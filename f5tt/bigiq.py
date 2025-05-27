@@ -444,7 +444,7 @@ def bigIqInventory(mode):
   output['instances'].append(instancesDict)
   output['details'] = wholeInventory
   output['telemetry'] = []
-  output['telemetry'] = bigIqTelemetry(mode)
+  #output['telemetry'] = bigIqTelemetry(mode)
   output['utilityBilling'] = bigIQCollectUtilityBilling()
 
   res,allVelosInfo = bigIQGetVelosInfo()
