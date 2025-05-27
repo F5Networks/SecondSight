@@ -357,6 +357,16 @@ create table if not exists view_user_entry_big_iq_ela_sizing (
         dss_create_time		varchar(128)
 );
 
+create table if not exists contract_devices (
+	id			serial unique,
+	legal_contract_id	varchar(128),
+	serial_num		varchar(64),
+	registration_key	varchar(33),
+
+	primary key (id),
+	unique (legal_contract_id,serial_num,registration_key)
+);
+
 --
 -- General purpose views
 --
