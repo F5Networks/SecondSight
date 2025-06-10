@@ -11,7 +11,7 @@ $0 [options]\n\n
 === Options:\n\n
 -h\t\t\t- This help\n\n
 -c [start|stop]\t- Deployment command\n
--t [bigiq|nim]\t\t- Deployment type\n\n
+-t [bigiq]\t\t- Deployment type\n\n
 -s [url]\t\t- BIG-IQ URL\n
 -u [username]\t\t- BIG-IQ username\n
 -p [password]\t\t- BIG-IQ password\n\n
@@ -53,10 +53,8 @@ echo "Enter sudo password if prompted"
 
 sudo bash -c "mkdir -p /opt/f5tt;chown $USERID:$USERGROUP /opt/f5tt"
 
-if [ "$MODE" = "nim" ]
+if [ "$MODE" = "bigiq" ]
 then
-	mkdir -p /opt/f5tt/{prometheus,grafana/data,grafana/log,grafana/plugins,clickhouse/data,clickhouse/logs}
-else
 	mkdir -p /opt/f5tt/{prometheus,grafana/data,grafana/log,grafana/plugins}
 fi
 
@@ -126,7 +124,7 @@ do
         esac
 done
 
-if [ -z "${ACTION}" ] || [ -z "${MODE}" ] || [[ ! "${ACTION}" == +(start|stop) ]] || [[ ! "${MODE}" == +(bigiq|nim) ]] ||
+if [ -z "${ACTION}" ] || [ -z "${MODE}" ] || [[ ! "${ACTION}" == +(start|stop) ]] || [[ ! "${MODE}" == +(bigiq) ]] ||
 	([ "${ACTION}" = "start" ] && ([ -z "${DATAPLANE_URL}" ] || [ -z "${DATAPLANE_USERNAME}" ] || [ -z "${DATAPLANE_PASSWORD}" ]))
 then
 	usage
