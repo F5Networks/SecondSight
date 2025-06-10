@@ -45,7 +45,7 @@ finalizeTarfile() {
   fi
 }
 
-VERSION="FCP Usage Script - 20250610"
+VERSION="FCP Usage Script - 20250212"
 BANNER="$VERSION - https://github.com/F5Networks/SecondSight\n\n
 This tool collects usage tracking data from BIG-IQ for offline postprocessing.\n\n
 === Usage:\n\n
@@ -58,8 +58,8 @@ $0 [options]\n\n
 -p [password]\t\t- BIG-IQ password (batch mode)\n
 -c [customer_name]\t- Customer name (batch mode)\n
 -s [http(s)://address]\t- Upload data to Second Sight (optional)\n
--t [seconds]\t\t- BIG-IQ timeout (optional, 90 seconds by default)\n
--d\t\t\t- Collect data for troubleshooting purposes\n\n
+-t [seconds]\t\t- BIG-IQ timeout (optional, 30 seconds by default)\n
+-d\t\t\t\t- Collect data for troubleshooting purposes\n\n
 === Examples:\n\n
 Interactive mode:\t\t$0 -i\n
 Interactive mode + upload:\t$0 -i -s https://<SECOND_SIGHT_FQDN_OR_IP>\n
@@ -70,7 +70,7 @@ Collect debug data:\t\t$0 -i -d\n
 
 COLOUR_RED='\033[0;31m'
 COLOUR_NONE='\033[0m'
-BIGIQ_TIMEOUT=90
+BIGIQ_TIMEOUT=30
 
 while getopts 'hviu:p:s:c:t:d' OPTION
 do
@@ -263,6 +263,8 @@ done
 echo "-> Collecting F5OS configuration"
 AUTH_TOKEN=`getAuthToken $REFRESH_TOKEN`
 curl -ksX GET "https://127.0.0.1/mgmt/cm/f5os/config" -H "X-F5-Auth-Token: $AUTH_TOKEN" > $OUTPUTDIR/5.bigIQCollect.json
+
+fi
 
 ### Utility billing collection
 

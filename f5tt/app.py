@@ -22,7 +22,6 @@ from email.message import EmailMessage
 
 # All modules
 import bigiq
-import nms
 import cveDB
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -43,12 +42,7 @@ def scheduledPush(url, username, password, interval, pushmode):
 
     while counter >= 0:
         try:
-            if nc_mode == 'NGINX_MANAGEMENT_SYSTEM':
-                if pushmode == 'CUSTOM':
-                    payload,code = nms.nmsInstances(mode='JSON')
-                elif pushmode == 'PUSHGATEWAY':
-                    payload,code = nms.nmsInstances(mode='PUSHGATEWAY')
-            elif nc_mode == 'BIG_IQ':
+            if nc_mode == 'BIG_IQ':
                 if pushmode == 'CUSTOM':
                     payload,code = bigiq.bigIqInventory(mode='JSON')
                 elif pushmode == 'PUSHGATEWAY':
@@ -91,12 +85,7 @@ def scheduledEmail(email_server, email_server_port, email_server_type, email_aut
                    email_recipient, email_interval):
     while True:
         try:
-            if nc_mode == 'NGINX_MANAGEMENT_SYSTEM':
-                payload,code = nms.nmsInstances(mode='JSON')
-                subscriptionId = '[' + payload['subscription']['id'] + '] '
-                subjectPostfix = 'NGINX Usage Reporting'
-                attachname = 'nginx_report.json'
-            elif nc_mode == 'BIG_IQ':
+            if nc_mode == 'BIG_IQ':
                 payload,code = bigiq.bigIqInventory(mode='JSON')
                 subscriptionId = ''
                 subjectPostfix = 'BIG-IP Usage Reporting'
@@ -186,17 +175,7 @@ async def getJson(request: Request):
 @app.get("/instances")
 @app.get("/f5tt/instances")
 def getInstances(request: Request,type: Optional[str] = None,month: Optional[int] = -1,slot: Optional[int] = 4):
-    if nc_mode == 'NGINX_MANAGEMENT_SYSTEM':
-        if type == None:
-          reply,code = nms.nmsInstances(mode='JSON')
-        elif type.lower() == 'cve':
-          reply,code = nms.nmsCVEjson()
-        elif type.lower() == 'timebased':
-          reply,code = nms.nmsTimeBasedJson(month,slot)
-        else:
-          reply = {}
-          code = 404
-    elif nc_mode == 'BIG_IQ':
+    if nc_mode == 'BIG_IQ':
         if type == None:
           reply,code = bigiq.bigIqInventory(mode='JSON')
         elif type.lower() == 'cve':
@@ -239,9 +218,7 @@ def getInstances(request: Request,type: Optional[str] = None,month: Optional[int
 @app.get("/metrics")
 @app.get("/f5tt/metrics")
 def getMetrics():
-    if nc_mode == 'NGINX_MANAGEMENT_SYSTEM':
-        reply,code = nms.nmsInstances(mode='PROMETHEUS')
-    elif nc_mode == 'BIG_IQ':
+    if nc_mode == 'BIG_IQ':
         reply,code = bigiq.bigIqInventory(mode='PROMETHEUS')
 
     return Response(content=reply,media_type="text/plain")
@@ -275,7 +252,7 @@ def not_found(uri: str):
 
 if __name__ == '__main__':
 
-    if nc_mode != 'NGINX_MANAGEMENT_SYSTEM' and nc_mode != 'BIG_IQ':
+    if nc_mode != 'BIG_IQ':
         print('Invalid DATAPLANE_TYPE')
     else:
         # optional HTTP(S) proxy if configured
@@ -310,16 +287,6 @@ if __name__ == '__main__':
             print('Running BIG-IQ inventory refresh thread')
             inventoryThread = threading.Thread(target=bigiq.scheduledInventory)
             inventoryThread.start()
-        elif nc_mode == 'NGINX_MANAGEMENT_SYSTEM':
-            ch_host = os.environ['NMS_CH_HOST'] if 'NMS_CH_HOST' in os.environ else '127.0.0.1'
-            ch_port = os.environ['NMS_CH_PORT'] if 'NMS_CH_PORT' in os.environ else '9000'
-            ch_user = os.environ['NMS_CH_USER'] if 'NMS_CH_USER' in os.environ else 'default'
-            ch_pass = os.environ['NMS_CH_PASS'] if 'NMS_CH_PASS' in os.environ else ''
-            ch_sample_interval = int(os.environ['NMS_CH_SAMPLE_INTERVAL']) if 'NMS_CH_SAMPLE_INTERVAL' in os.environ else 1800
-            nms_auth_type = os.environ['NMS_AUTH_TYPE'] if 'NMS_AUTH_TYPE' in os.environ else ''
-            nms_auth_token = os.environ['NMS_AUTH_TOKEN'] if 'NMS_AUTH_TOKEN' in os.environ else ''
-
-            nms.init(fqdn=nc_fqdn, username=nc_user, password=nc_pass, auth_type=nms_auth_type, auth_token=nms_auth_token, nistApiKey=nist_apikey, proxy=proxyDict, ch_host=ch_host, ch_port=ch_port, ch_user=ch_user, ch_pass=ch_pass, sample_interval=ch_sample_interval)
 
         if "STATS_PUSH_ENABLE" in os.environ:
             if os.environ['STATS_PUSH_ENABLE'] == 'true':
