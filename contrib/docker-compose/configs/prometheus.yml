@@ -9,4 +9,3 @@ scrape_configs:
     static_configs:
     - targets:
       - f5tt-bigiq:5000
-      - f5tt-nim:5000

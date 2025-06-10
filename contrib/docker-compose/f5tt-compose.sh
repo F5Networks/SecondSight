@@ -11,16 +11,14 @@ $0 [options]\n\n
 === Options:\n\n
 -h\t\t\t- This help\n\n
 -c [start|stop]\t- Deployment command\n
--t [bigiq|nim]\t\t- Deployment type\n\n
--s [url]\t\t- BIG-IQ/NGINX Instance Manager URL\n
--u [username]\t\t- BIG-IQ/NGINX Instance Manager username\n
--p [password]\t\t- BIG-IQ/NGINX Instance Manager password\n\n
+-t [bigiq]\t\t- Deployment type\n\n
+-s [url]\t\t- BIG-IQ URL\n
+-u [username]\t\t- BIG-IQ username\n
+-p [password]\t\t- BIG-IQ password\n\n
 -k [NIST API key]\t- NIST CVE REST API Key (https://nvd.nist.gov/developers/request-an-api-key)\n\n
 === Examples:\n\n
 Deploy Second Sight for BIG-IQ:\t\t\t$0 -c start -t bigiq -s https://<BIGIQ_ADDRESS> -u <username> -p <password>\n
 Remove Second Sight for BIG-IQ:\t\t\t$0 -c stop -t bigiq\n
-Deploy Second Sight for NGINX Instance Manager:\t$0 -c start -t nim -s https://<NGINX_INSTANCE_MANAGER_ADDRESS> -u <username> -p <password>\n
-Remove Second Sight for NGINX Instance Manager:\t$0 -c stop -t nim\n
 "
 
 echo -e $BANNER 2>&1
@@ -29,7 +27,7 @@ exit 1
 
 #
 # Second Sight deployment
-# parameters: [bigiq|nginx] [controlplane URL] [username] [password] [NIST CVD key]
+# parameters: [bigiq] [controlplane URL] [username] [password] [NIST CVD key]
 #
 f5tt_start() {
 if [ "$#" -lt 4 ]
@@ -55,10 +53,8 @@ echo "Enter sudo password if prompted"
 
 sudo bash -c "mkdir -p /opt/f5tt;chown $USERID:$USERGROUP /opt/f5tt"
 
-if [ "$MODE" = "nim" ]
+if [ "$MODE" = "bigiq" ]
 then
-	mkdir -p /opt/f5tt/{prometheus,grafana/data,grafana/log,grafana/plugins,clickhouse/data,clickhouse/logs}
-else
 	mkdir -p /opt/f5tt/{prometheus,grafana/data,grafana/log,grafana/plugins}
 fi
 
@@ -68,7 +64,7 @@ COMPOSE_HTTP_TIMEOUT=240 docker-compose -p $PROJECT_NAME-$MODE -f $DOCKER_COMPOS
 
 #
 # Second Sight removal
-# parameters: [bigiq|nginx]
+# parameters: [bigiq]
 #
 f5tt_stop() {
 if [ "$#" != 1 ]
@@ -128,7 +124,7 @@ do
         esac
 done
 
-if [ -z "${ACTION}" ] || [ -z "${MODE}" ] || [[ ! "${ACTION}" == +(start|stop) ]] || [[ ! "${MODE}" == +(bigiq|nim) ]] ||
+if [ -z "${ACTION}" ] || [ -z "${MODE}" ] || [[ ! "${ACTION}" == +(start|stop) ]] || [[ ! "${MODE}" == +(bigiq) ]] ||
 	([ "${ACTION}" = "start" ] && ([ -z "${DATAPLANE_URL}" ] || [ -z "${DATAPLANE_USERNAME}" ] || [ -z "${DATAPLANE_PASSWORD}" ]))
 then
 	usage

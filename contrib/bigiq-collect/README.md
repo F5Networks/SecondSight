@@ -5,8 +5,6 @@
 The `bigIQCollect.sh` script must be copied and run on a BIG-IQ Centralized Manager instance. It will collect raw JSON files and package them into a single .tgz file:
 the .tgz file can then be processed offline by Second Sight to build all target JSON files
 
-`sampledata.tgz` is provided for testing purposes
-
 ## Script installation
 
 - Copy (scp) `bigIQCollect.sh` from your local host to your BIG-IQ CM instance, under `/tmp/`

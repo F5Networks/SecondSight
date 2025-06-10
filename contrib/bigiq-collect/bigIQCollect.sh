@@ -58,7 +58,7 @@ $0 [options]\n\n
 -p [password]\t\t- BIG-IQ password (batch mode)\n
 -c [customer_name]\t- Customer name (batch mode)\n
 -s [http(s)://address]\t- Upload data to Second Sight (optional)\n
--t [seconds]\t\t- BIG-IQ timeout (optional, 90 seconds by default)\n
+-t [seconds]\t\t- BIG-IQ timeout (optional, 30 seconds by default)\n
 -d\t\t\t\t- Collect data for troubleshooting purposes\n\n
 === Examples:\n\n
 Interactive mode:\t\t$0 -i\n
@@ -70,7 +70,7 @@ Collect debug data:\t\t$0 -i -d\n
 
 COLOUR_RED='\033[0;31m'
 COLOUR_NONE='\033[0m'
-BIGIQ_TIMEOUT=90
+BIGIQ_TIMEOUT=30
 
 while getopts 'hviu:p:s:c:t:d' OPTION
 do
@@ -263,136 +263,6 @@ done
 echo "-> Collecting F5OS configuration"
 AUTH_TOKEN=`getAuthToken $REFRESH_TOKEN`
 curl -ksX GET "https://127.0.0.1/mgmt/cm/f5os/config" -H "X-F5-Auth-Token: $AUTH_TOKEN" > $OUTPUTDIR/5.bigIQCollect.json
-
-echo "-> Reading device telemetry"
-ALL_TELEMETRY="
-bigip-cpu|cpu-usage|avg-value-per-event|-1H|5|MINUTES
-bigip-cpu|cpu-usage|avg-value-per-event|-1W|3|HOURS
-bigip-cpu|cpu-usage|avg-value-per-event|-30D|12|HOURS
-bigip-memory|free-ram|avg-value-per-event|-1H|5|MINUTES
-bigip-memory|free-ram|avg-value-per-event|-1W|3|HOURS
-bigip-memory|free-ram|avg-value-per-event|-30D|12|HOURS
-bigip-disk-usage|disk-available-size|avg-value-per-event|-1H|5|MINUTES
-bigip-disk-usage|disk-available-size|avg-value-per-event|-1W|3|HOURS
-bigip-disk-usage|disk-available-size|avg-value-per-event|-30D|12|HOURS
-bigip-traffic-summary|server-connections|avg-value-per-sec|-1H|5|MINUTES
-bigip-traffic-summary|server-connections|avg-value-per-sec|-1W|3|HOURS
-bigip-traffic-summary|server-connections|avg-value-per-sec|-30D|12|HOURS
-bigip-traffic-summary|client-bytes-in|avg-value-per-sec|-1H|5|MINUTES
-bigip-traffic-summary|client-bytes-in|avg-value-per-sec|-1W|3|HOURS
-bigip-traffic-summary|client-bytes-in|avg-value-per-sec|-30D|12|HOURS
-bigip-traffic-summary|client-bytes-out|avg-value-per-sec|-1H|5|MINUTES
-bigip-traffic-summary|client-bytes-out|avg-value-per-sec|-1W|3|HOURS
-bigip-traffic-summary|client-bytes-out|avg-value-per-sec|-30D|12|HOURS
-bigip-traffic-summary|server-bytes-in|avg-value-per-sec|-1H|5|MINUTES
-bigip-traffic-summary|server-bytes-in|avg-value-per-sec|-1W|3|HOURS
-bigip-traffic-summary|server-bytes-in|avg-value-per-sec|-30D|12|HOURS
-bigip-traffic-summary|server-bytes-out|avg-value-per-sec|-1H|5|MINUTES
-bigip-traffic-summary|server-bytes-out|avg-value-per-sec|-1W|3|HOURS
-bigip-traffic-summary|server-bytes-out|avg-value-per-sec|-30D|12|HOURS
-"
-
-ALL_HOSTNAMES=""
-AUTH_TOKEN=`getAuthToken $REFRESH_TOKEN`
-
-for T in $ALL_TELEMETRY
-do
-	T_MODULE=`echo $T | awk -F\| '{print $1}'`
-	T_METRICSET=`echo $T | awk -F\| '{print $2}'`
-	T_METRIC=`echo $T | awk -F\| '{print $3}'`
-	T_TIMERANGE=`echo $T | awk -F\| '{print $4}'`
-	T_GRAN_DURATION=`echo $T | awk -F\| '{print $5}'`
-	T_GRAN_UNIT=`echo $T | awk -F\| '{print $6}'`
-
-	#echo "- $T_MODULE / $T_METRICSET / $T_METRIC / $T_TIMERANGE / $T_GRAN_DURATION / $T_GRAN_UNIT"
-
-	TELEMETRY_JSON='{
-    "kind": "ap:query:stats:byEntities",
-    "module": "'$T_MODULE'",
-    "timeRange": {
-            "from": "'$T_TIMERANGE'",
-            "to": "now"
-    },
-    "dimension": "hostname",
-    "aggregations": {
-            "'$T_METRICSET'$'$T_METRIC'": {
-                    "metricSet": "'$T_METRICSET'",
-                    "metric": "'$T_METRIC'"
-            }
-    },
-    "timeGranularity": {
-      "duration": '$T_GRAN_DURATION',
-      "unit": "'$T_GRAN_UNIT'"
-    },
-    "limit": 1000
-}'
-
-	TELEMETRY_OUTPUT=`curl -ksX POST https://127.0.0.1/mgmt/ap/query/v1/tenants/default/products/device/metric-query -H "X-F5-Auth-Token: $AUTH_TOKEN" -H "Content-Type: application/json" -d "$TELEMETRY_JSON"`
-        OUTFILE=$OUTPUTDIR/telemetry-$T_MODULE-$T_METRICSET-$T_TIMERANGE.json
-
-	echo $TELEMETRY_OUTPUT > $OUTFILE
-
-	if [ "$ALL_HOSTNAMES" = "" ]
-	then
-		ALL_HOSTNAMES=`echo $TELEMETRY_OUTPUT |jq -r '.result.result[].hostname' 2>/dev/null`
-	fi
-done
-
-## Datapoints telemetry
-
-AUTH_TOKEN=`getAuthToken $REFRESH_TOKEN`
-
-for TDP_HOSTNAME in $ALL_HOSTNAMES
-do
-
-echo "-> Reading device telemetry datapoints for [$TDP_HOSTNAME]"
-
-for TDP in $ALL_TELEMETRY
-do
-	TDP_MODULE=`echo $TDP | awk -F\| '{print $1}'`
-	TDP_METRICSET=`echo $TDP | awk -F\| '{print $2}'`
-	TDP_METRIC=`echo $TDP | awk -F\| '{print $3}'`
-	TDP_TIMERANGE=`echo $TDP | awk -F\| '{print $4}'`
-	TDP_GRAN_DURATION=`echo $TDP | awk -F\| '{print $5}'`
-	TDP_GRAN_UNIT=`echo $TDP | awk -F\| '{print $6}'`
-
-	#echo "- $TDP_HOSTNAME -> $TDP_MODULE / $TDP_METRICSET / $TDP_METRIC / $TDP_TIMERANGE / $TDP_GRAN_DURATION / $TDP_GRAN_UNIT"
-
-	TELEMETRY_DP_JSON='{
-    "kind": "ap:query:stats:byTime",
-    "module": "'$TDP_MODULE'",
-    "timeRange": {
-            "from": "'$TDP_TIMERANGE'",
-            "to": "now"
-    },
-    "dimension": "hostname",
-    "dimensionFilter": {
-            "type": "eq",
-            "dimension": "hostname",
-            "value": "'$TDP_HOSTNAME'"
-    },
-    "aggregations": {
-            "'$TDP_METRICSET'$'$TDP_METRIC'": {
-                    "metricSet": "'$TDP_METRICSET'",
-                    "metric": "'$TDP_METRIC'"
-            }
-    },
-    "timeGranularity": {
-      "duration": '$TDP_GRAN_DURATION',
-      "unit": "'$TDP_GRAN_UNIT'"
-    },
-    "limit": 1000
-}'
-
-	TELEMETRY_DP_OUTPUT=`curl -ksX POST https://127.0.0.1/mgmt/ap/query/v1/tenants/default/products/device/metric-query -H "X-F5-Auth-Token: $AUTH_TOKEN" -H "Content-Type: application/json" -d "$TELEMETRY_DP_JSON"`
-        OUTFILE=$OUTPUTDIR/telemetry-datapoints-$TDP_HOSTNAME-$TDP_MODULE-$TDP_METRICSET-$TDP_TIMERANGE.json
-
-	echo $TELEMETRY_DP_OUTPUT > $OUTFILE
-done
-
-done
-
-### /Datapoints telemetry
 
 fi
 
