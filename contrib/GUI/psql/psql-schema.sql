@@ -367,6 +367,31 @@ create table if not exists contract_devices (
 	unique (legal_contract_id,serial_num,registration_key)
 );
 
+create table if not exists support_cases (
+	id				serial unique,
+	archive_id			integer not null,
+	serial_num			varchar(64),
+	support_case_num		varchar(64),
+	current_priority_code		varchar(64),
+	product_sku_id			varchar(64),
+	support_case_status_code	varchar(64),
+	support_case_sub_status_code	varchar(64),
+	support_case_title_text		varchar(256),
+	case_submitted_serial_num	varchar(64),
+	bugzilla_num			varchar(64),
+	closed_datetime			varchar(64),
+	contact_email_address_text	varchar(256),
+	contact_full_name		varchar(256),
+	contact_phome_num		varchar(128),
+	last_modified_datetime		varchar(64),
+	opened_by_user_id		varchar(128),
+	opened_datetime			varchar(64),
+	resolved_datetime		varchar(64),
+
+	primary key (id),
+	foreign key (archive_id) references archives(id)
+);
+
 --
 -- General purpose views
 --
