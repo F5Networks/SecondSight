@@ -369,7 +369,7 @@ create table if not exists contract_devices (
 
 create table if not exists support_cases (
 	id				serial unique,
-	archive_id			integer not null,
+	archive_uid			uuid,
 	serial_num			varchar(64),
 	support_case_num		varchar(64),
 	current_priority_code		varchar(64),
@@ -382,14 +382,14 @@ create table if not exists support_cases (
 	closed_datetime			varchar(64),
 	contact_email_address_text	varchar(256),
 	contact_full_name		varchar(256),
-	contact_phome_num		varchar(128),
+	contact_phone_num		varchar(128),
 	last_modified_datetime		varchar(64),
 	opened_by_user_id		varchar(128),
 	opened_datetime			varchar(64),
 	resolved_datetime		varchar(64),
 
 	primary key (id),
-	foreign key (archive_id) references archives(id)
+	foreign key (archive_uid) references archives(uid)
 );
 
 --
