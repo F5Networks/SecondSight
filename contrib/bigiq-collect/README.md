@@ -24,13 +24,13 @@ $ ssh root@bigiq.f5
 Last login: Fri Nov 19 00:00:05 2021 from 192.168.1.18
 [root@bigiq:Active:Standalone] config # chmod +x /tmp/bigIQCollect.sh 
 [root@bigiq:Active:Standalone] config # /tmp/bigIQCollect.sh 
-FCP Usage Script - 20250207 - https://github.com/F5Networks/SecondSight
+FCP Usage Script - 20251013 - https://github.com/F5Networks/SecondSight
 
  This tool collects usage tracking data from BIG-IQ for offline postprocessing.
 
  === Usage:
 
- ./bigIQCollect.sh [options]
+ ./contrib/bigiq-collect/bigIQCollect.sh [options]
 
  === Options:
 
@@ -41,17 +41,18 @@ FCP Usage Script - 20250207 - https://github.com/F5Networks/SecondSight
  -p [password]          - BIG-IQ password (batch mode)
  -c [customer_name]     - Customer name (batch mode)
  -s [http(s)://address] - Upload data to Second Sight (optional)
- -t [seconds]           - BIG-IQ timeout (optional, 90 seconds by default)
- -d                             - Collect data for troubleshooting purposes
+ -t [seconds]           - BIG-IQ timeout (optional, 30 seconds by default)
+ -d                     - Collect data for troubleshooting purposes
+ -T                     - Collect telemetry data
 
  === Examples:
 
- Interactive mode:              ./bigIQCollect.sh -i
- Interactive mode + upload:     ./bigIQCollect.sh -i -s https://<SECOND_SIGHT_FQDN_OR_IP>
- Batch mode:                    ./bigIQCollect.sh -u [username] -p [password] -c [customer_name]
- Batch mode:                    ./bigIQCollect.sh -u [username] -p [password] -c [customer_name] -s https://<SECOND_SIGHT_FQDN_OR_IP>
+ Interactive mode:              ./contrib/bigiq-collect/bigIQCollect.sh -i
+ Interactive mode + upload:     ./contrib/bigiq-collect/bigIQCollect.sh -i -s https://<SECOND_SIGHT_FQDN_OR_IP>
+ Batch mode:                    ./contrib/bigiq-collect/bigIQCollect.sh -u [username] -p [password] -c [customer_name]
+ Batch mode + upload:           ./contrib/bigiq-collect/bigIQCollect.sh -u [username] -p [password] -c [customer_name] -s https://<SECOND_SIGHT_FQDN_OR_IP>
 
- Collect debug data:            ./bigIQCollect.sh -i -d
+ Collect debug data:            ./contrib/bigiq-collect/bigIQCollect.sh -i -d
 ```
 
 ## Usage - Data collection with manual upload
