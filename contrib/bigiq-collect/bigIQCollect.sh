@@ -45,7 +45,7 @@ finalizeTarfile() {
   fi
 }
 
-VERSION="FCP Usage Script - 20251013"
+VERSION="FCP Usage Script - 20260109"
 BANNER="$VERSION - https://github.com/F5Networks/SecondSight\n\n
 This tool collects usage tracking data from BIG-IQ for offline postprocessing.\n\n
 === Usage:\n\n
@@ -58,7 +58,7 @@ $0 [options]\n\n
 -p [password]\t\t- BIG-IQ password (batch mode)\n
 -c [customer_name]\t- Customer name (batch mode)\n
 -s [http(s)://address]\t- Upload data to Second Sight (optional)\n
--t [seconds]\t\t- BIG-IQ timeout (optional, 30 seconds by default)\n
+-t [seconds]\t\t- BIG-IQ timeout (optional, 500 seconds by default)\n
 -d\t\t\t- Collect data for troubleshooting purposes\n
 -T\t\t\t- Collect telemetry data\n\n
 === Examples:\n\n
@@ -71,7 +71,7 @@ Collect debug data:\t\t$0 -i -d\n
 
 COLOUR_RED='\033[0;31m'
 COLOUR_NONE='\033[0m'
-BIGIQ_TIMEOUT=30
+BIGIQ_TIMEOUT=500
 
 while getopts 'hviu:p:s:c:t:dT' OPTION
 do
